@@ -73,4 +73,14 @@ where
             aux_dev_busy: (status & StatusBits::AUX_BUSY) != 0,
         })
     }
+
+    /// Get the sensor time.
+    pub fn get_sensor_time(&mut self) -> Result<u32, Error<CommE, CsE>> {
+        let mut payload = [Registers::SENSORTIME_0, 0, 0, 0];
+        self.iface.read(&mut payload)?;
+
+        let sensor_time = payload[1] as u32 | (payload[2] << 8) as u32 | (payload[3] << 16) as u32;
+
+        Ok(sensor_time)
+    }
 }

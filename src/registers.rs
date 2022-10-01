@@ -4,6 +4,7 @@ impl Registers {
     pub const CHIP_ID: u8 = 0x00;
     pub const ERR_REG: u8 = 0x02;
     pub const STATUS: u8 = 0x03;
+    pub const SENSORTIME_0: u8 = 0x18;
 }
 
 pub struct ErrRegBits;
