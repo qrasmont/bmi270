@@ -1,12 +1,12 @@
 #![no_std]
 
-use interface::{I2cInterface, SpiInterface, WriteData, ReadData};
-use registers::Registers;
-use types::Error;
+use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
+use registers::{ErrRegBits, Registers};
+use types::{Error, ErrorReg};
 
 pub mod interface;
-mod types;
 mod registers;
+mod types;
 
 pub struct Bmi270<I> {
     iface: I,
@@ -42,10 +42,22 @@ impl<SPI, CS> Bmi270<SpiInterface<SPI, CS>> {
 
 impl<I, CommE, CsE> Bmi270<I>
 where
-    I: ReadData<Error = Error<CommE, CsE>> + WriteData<Error = Error<CommE, CsE>>
+    I: ReadData<Error = Error<CommE, CsE>> + WriteData<Error = Error<CommE, CsE>>,
 {
     /// Get the chip id.
     pub fn get_chip_id(&mut self) -> Result<u8, Error<CommE, CsE>> {
         self.iface.read_reg(Registers::CHIP_ID)
+    }
+
+    /// Get the errors from the error register.
+    pub fn get_errors(&mut self) -> Result<ErrorReg, Error<CommE, CsE>> {
+        let errors = self.iface.read_reg(Registers::ERR_REG)?;
+
+        Ok(ErrorReg {
+            fatal_err: (errors & ErrRegBits::FATAL_ERR) != 0,
+            internal_err: errors & ErrRegBits::INTERNAL_ERR,
+            fifo_err: (errors & ErrRegBits::FIFO_ERR) != 0,
+            aux_err: (errors & ErrRegBits::AUX_ERR) != 0,
+        })
     }
 }
