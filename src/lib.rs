@@ -1,8 +1,8 @@
 #![no_std]
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
-use registers::{ErrRegBits, Registers};
-use types::{Error, ErrorReg};
+use registers::{ErrRegBits, Registers, StatusBits};
+use types::{Error, ErrorReg, Status};
 
 pub mod interface;
 mod registers;
@@ -58,6 +58,19 @@ where
             internal_err: errors & ErrRegBits::INTERNAL_ERR,
             fifo_err: (errors & ErrRegBits::FIFO_ERR) != 0,
             aux_err: (errors & ErrRegBits::AUX_ERR) != 0,
+        })
+    }
+
+    /// Get the sensor status.
+    pub fn get_status(&mut self) -> Result<Status, Error<CommE, CsE>> {
+        let status = self.iface.read_reg(Registers::STATUS)?;
+
+        Ok(Status {
+            acc_data_ready: (status & StatusBits::DRDY_ACC) != 0,
+            gyr_data_ready: (status & StatusBits::DRDY_GYR) != 0,
+            aux_data_ready: (status & StatusBits::DRDY_AUX) != 0,
+            cmd_ready: (status & StatusBits::CMD_RDY) != 0,
+            aux_dev_busy: (status & StatusBits::AUX_BUSY) != 0,
         })
     }
 }

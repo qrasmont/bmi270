@@ -17,3 +17,17 @@ pub struct ErrorReg {
     /// Error in I2C-Master detected.
     pub aux_err: bool,
 }
+
+/// Sensor status flags.
+pub struct Status {
+    /// Data ready for Accelerometer.
+    pub acc_data_ready: bool,
+    /// Data ready for Gyroscope.
+    pub gyr_data_ready: bool,
+    /// Data ready for Auxiliary sensor.
+    pub aux_data_ready: bool,
+    /// Command decoder ready for a new command.
+    pub cmd_ready: bool,
+    /// Auxiliary sensor operation ongoing.
+    pub aux_dev_busy: bool,
+}
