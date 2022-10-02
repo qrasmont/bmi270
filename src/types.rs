@@ -110,3 +110,39 @@ pub struct InterruptStatus {
     /// Accelerometer data ready interrupt.
     pub acc_drdy_int: bool,
 }
+
+/// Wrist gestures.
+pub enum WristGesture {
+    /// Unknown.
+    Unknown,
+    /// Push the arm down.
+    PushArmDown,
+    /// Pivot up.
+    PivotUp,
+    /// Wrist shake/jiggle.
+    Shake,
+    /// Arm flick in.
+    FlickIn,
+    /// Arm flick out.
+    FlickOut,
+}
+
+/// Activity detection.
+pub enum Activity {
+    /// User stationnary.
+    Still,
+    /// User walking.
+    Walking,
+    /// User running.
+    Running,
+    /// Unknown state.
+    Unknown,
+}
+
+/// Wrist gesture and activity.
+pub struct WristGestureActivity {
+    /// Wrist gesture.
+    pub wrist_gesture: WristGesture,
+    /// Activity.
+    pub activity: Activity,
+}

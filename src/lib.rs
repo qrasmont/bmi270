@@ -2,11 +2,12 @@
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::{
-    ErrRegBits, EventBits, InterruptStatus0Bits, InterruptStatus1Bits, PersistentErrVal, Registers,
-    StatusBits,
+    ActivityOutVal, ErrRegBits, EventBits, InterruptStatus0Bits, InterruptStatus1Bits,
+    PersistentErrVal, Registers, StatusBits, WristGestureActivityBits, WristGestureOutVal,
 };
 use types::{
-    AuxData, AxisData, Data, Error, ErrorReg, Event, InterruptStatus, PersistentErrors, Status,
+    Activity, AuxData, AxisData, Data, Error, ErrorReg, Event, InterruptStatus, PersistentErrors,
+    Status, WristGesture, WristGestureActivity,
 };
 
 pub mod interface;
@@ -176,6 +177,32 @@ where
         let steps: u16 = u16::from(payload[1]) | u16::from(payload[2]) << 8;
 
         Ok(steps)
+    }
+
+    /// Get the detected wrist gesture and activity type.
+    pub fn get_wrist_gesture_activity(
+        &mut self,
+    ) -> Result<WristGestureActivity, Error<CommE, CsE>> {
+        let wr_gest_acc = self.iface.read_reg(Registers::WR_GEST_ACT)?;
+
+        Ok(WristGestureActivity {
+            wrist_gesture: match wr_gest_acc & WristGestureActivityBits::WRIST_GESTURE {
+                WristGestureOutVal::UNKNOWN => WristGesture::Unknown,
+                WristGestureOutVal::PUSH_ARM_DOWN => WristGesture::PushArmDown,
+                WristGestureOutVal::PIVOT_UP => WristGesture::PivotUp,
+                WristGestureOutVal::SHAKE => WristGesture::Shake,
+                WristGestureOutVal::FLICK_IN => WristGesture::FlickIn,
+                WristGestureOutVal::FLICK_OUT => WristGesture::FlickOut,
+                _ => panic!(), // TODO
+            },
+            activity: match (wr_gest_acc & WristGestureActivityBits::ACTIVITY) >> 3 {
+                ActivityOutVal::STILL => Activity::Still,
+                ActivityOutVal::WALKING => Activity::Walking,
+                ActivityOutVal::RUNNING => Activity::Running,
+                ActivityOutVal::UNKNOWN => Activity::Unknown,
+                _ => panic!(), // TODO
+            },
+        })
     }
 }
 

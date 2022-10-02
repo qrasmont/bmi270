@@ -12,6 +12,7 @@ impl Registers {
     pub const INT_STATUS_0: u8 = 0x1C;
     pub const INT_STATUS_1: u8 = 0x1D;
     pub const SC_OUT_0: u8 = 0x1E;
+    pub const WR_GEST_ACT: u8 = 0x20;
 }
 
 pub struct ErrRegBits;
@@ -64,4 +65,28 @@ impl InterruptStatus1Bits {
     pub const AUX_DRDY_INT: u8 = 1 << 5;
     pub const GYR_DRDY_INT: u8 = 1 << 6;
     pub const ACC_DRDY_INT: u8 = 1 << 7;
+}
+
+pub struct WristGestureOutVal;
+impl WristGestureOutVal {
+    pub const UNKNOWN: u8 = 0x00;
+    pub const PUSH_ARM_DOWN: u8 = 0x01;
+    pub const PIVOT_UP: u8 = 0x02;
+    pub const SHAKE: u8 = 0x03;
+    pub const FLICK_IN: u8 = 0x04;
+    pub const FLICK_OUT: u8 = 0x05;
+}
+
+pub struct ActivityOutVal;
+impl ActivityOutVal {
+    pub const STILL: u8 = 0x00;
+    pub const WALKING: u8 = 0x01;
+    pub const RUNNING: u8 = 0x02;
+    pub const UNKNOWN: u8 = 0x03;
+}
+
+pub struct WristGestureActivityBits;
+impl WristGestureActivityBits {
+    pub const WRIST_GESTURE: u8 = 0b0000_0111;
+    pub const ACTIVITY: u8 = 0b0001_1000;
 }
