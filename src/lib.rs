@@ -1,8 +1,8 @@
 #![no_std]
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
-use registers::{ErrRegBits, Registers, StatusBits};
-use types::{AuxData, AxisData, Data, Error, ErrorReg, Status};
+use registers::{ErrRegBits, EventBits, PersistentErrVal, Registers, StatusBits};
+use types::{AuxData, AxisData, Data, Error, ErrorReg, Event, PersistentErrors, Status};
 
 pub mod interface;
 mod registers;
@@ -122,6 +122,22 @@ where
             acc: payload_to_axis(&payload[1..7]),
             gyr: payload_to_axis(&payload[7..13]),
             time: payload_to_sensortime(&payload[13..16]),
+        })
+    }
+
+    /// Get the event register.
+    pub fn get_event(&mut self) -> Result<Event, Error<CommE, CsE>> {
+        let event = self.iface.read_reg(Registers::EVENT)?;
+
+        Ok(Event {
+            por_detected: (event & EventBits::POR_DETECTED) != 0,
+            persistent_err: match (event & EventBits::ERR_CODE) >> 2 {
+                PersistentErrVal::NO_ERR => PersistentErrors::NoErr,
+                PersistentErrVal::ACC_ERR => PersistentErrors::AccErr,
+                PersistentErrVal::GYR_ERR => PersistentErrors::GyrErr,
+                PersistentErrVal::ACC_GYR_ERR => PersistentErrors::AccGyrErr,
+                _ => panic!(), // TODO
+            },
         })
     }
 }

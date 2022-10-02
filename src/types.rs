@@ -60,3 +60,23 @@ pub struct Data {
     /// Sensor time.
     pub time: u32,
 }
+
+/// Possible persistent errors.
+pub enum PersistentErrors {
+    /// No errors reported.
+    NoErr,
+    /// Error in the accelerometer config register.
+    AccErr,
+    /// Error in the gyroscope config register.
+    GyrErr,
+    /// Error in both the accelerometer and gyroscope config registers.
+    AccGyrErr,
+}
+
+/// Sensor event flags. Will be cleared on read when bit 0 is sent out over the bus.
+pub struct Event {
+    /// True after device power up or softreset. False after status read.
+    pub por_detected: bool,
+    /// Persistent errors.
+    pub persistent_err: PersistentErrors,
+}
