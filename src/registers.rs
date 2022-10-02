@@ -4,6 +4,9 @@ impl Registers {
     pub const CHIP_ID: u8 = 0x00;
     pub const ERR_REG: u8 = 0x02;
     pub const STATUS: u8 = 0x03;
+    pub const AUX_DATA_0: u8 = 0x04;
+    pub const ACC_DATA_0: u8 = 0x0C;
+    pub const GYR_DATA_0: u8 = 0x12;
     pub const SENSORTIME_0: u8 = 0x18;
 }
 

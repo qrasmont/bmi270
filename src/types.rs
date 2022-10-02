@@ -31,3 +31,32 @@ pub struct Status {
     /// Auxiliary sensor operation ongoing.
     pub aux_dev_busy: bool,
 }
+
+/// Axis data.
+pub struct AxisData {
+    /// X axis data.
+    pub x: i16,
+    /// Y axis data.
+    pub y: i16,
+    /// Z axis data.
+    pub z: i16,
+}
+
+/// Auxiliary sensor data.
+pub struct AuxData {
+    /// Axis data.
+    pub axis: AxisData,
+    // TODO
+    /// Last aux registers data.
+    pub r: i16,
+}
+
+/// Sensor data.
+pub struct Data {
+    /// Accelerometer data.
+    pub acc: AxisData,
+    /// Gyroscope data.
+    pub gyr: AxisData,
+    /// Sensor time.
+    pub time: u32,
+}

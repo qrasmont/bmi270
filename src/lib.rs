@@ -2,7 +2,7 @@
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::{ErrRegBits, Registers, StatusBits};
-use types::{Error, ErrorReg, Status};
+use types::{AuxData, AxisData, Data, Error, ErrorReg, Status};
 
 pub mod interface;
 mod registers;
@@ -74,13 +74,66 @@ where
         })
     }
 
+    /// Get the sensor auxiliary data.
+    pub fn get_aux_data(&mut self) -> Result<AuxData, Error<CommE, CsE>> {
+        let mut payload = [0_u8; 9];
+        payload[0] = Registers::AUX_DATA_0;
+        self.iface.read(&mut payload)?;
+
+        Ok(AuxData {
+            axis: payload_to_axis(&payload[1..7]),
+            r: (i16::from(payload[7]) | (i16::from(payload[8]) << 8)),
+        })
+    }
+
+    /// Get the sensor accelerometer data.
+    pub fn get_acc_data(&mut self) -> Result<AxisData, Error<CommE, CsE>> {
+        let mut payload = [0_u8; 7];
+        payload[0] = Registers::ACC_DATA_0;
+        self.iface.read(&mut payload)?;
+
+        Ok(payload_to_axis(&payload[1..]))
+    }
+
+    /// Get the sensor gyroscope data.
+    pub fn get_gyr_data(&mut self) -> Result<AxisData, Error<CommE, CsE>> {
+        let mut payload = [0_u8; 7];
+        payload[0] = Registers::GYR_DATA_0;
+        self.iface.read(&mut payload)?;
+
+        Ok(payload_to_axis(&payload[1..]))
+    }
+
     /// Get the sensor time.
     pub fn get_sensor_time(&mut self) -> Result<u32, Error<CommE, CsE>> {
         let mut payload = [Registers::SENSORTIME_0, 0, 0, 0];
         self.iface.read(&mut payload)?;
 
-        let sensor_time = payload[1] as u32 | (payload[2] << 8) as u32 | (payload[3] << 16) as u32;
-
-        Ok(sensor_time)
+        Ok(payload_to_sensortime(&payload[1..]))
     }
+
+    /// Get all the sensor data (excluding auxiliary data).
+    pub fn get_data(&mut self) -> Result<Data, Error<CommE, CsE>> {
+        let mut payload = [0_u8; 16];
+        payload[0] = Registers::ACC_DATA_0;
+        self.iface.read(&mut payload)?;
+
+        Ok(Data {
+            acc: payload_to_axis(&payload[1..7]),
+            gyr: payload_to_axis(&payload[7..13]),
+            time: payload_to_sensortime(&payload[13..16]),
+        })
+    }
+}
+
+fn payload_to_axis(payload: &[u8]) -> AxisData {
+    AxisData {
+        x: (i16::from(payload[0]) | (i16::from(payload[1]) << 8)),
+        y: (i16::from(payload[2]) | (i16::from(payload[3]) << 8)),
+        z: (i16::from(payload[4]) | (i16::from(payload[5]) << 8)),
+    }
+}
+
+fn payload_to_sensortime(payload: &[u8]) -> u32 {
+    u32::from(payload[0]) | (u32::from(payload[1]) << 8) | (u32::from(payload[2]) << 16)
 }
