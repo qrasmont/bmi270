@@ -11,6 +11,7 @@ impl Registers {
     pub const EVENT: u8 = 0x1B;
     pub const INT_STATUS_0: u8 = 0x1C;
     pub const INT_STATUS_1: u8 = 0x1D;
+    pub const SC_OUT_0: u8 = 0x1E;
 }
 
 pub struct ErrRegBits;

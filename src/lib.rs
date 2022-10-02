@@ -167,6 +167,16 @@ where
             acc_drdy_int: (int_stat_1 & InterruptStatus1Bits::ACC_DRDY_INT) != 0,
         })
     }
+
+    /// Get the step count.
+    pub fn get_step_count(&mut self) -> Result<u16, Error<CommE, CsE>> {
+        let mut payload = [Registers::SC_OUT_0, 0, 0];
+        self.iface.read(&mut payload)?;
+
+        let steps: u16 = u16::from(payload[1]) | u16::from(payload[2]) << 8;
+
+        Ok(steps)
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {
