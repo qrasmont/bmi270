@@ -9,6 +9,8 @@ impl Registers {
     pub const GYR_DATA_0: u8 = 0x12;
     pub const SENSORTIME_0: u8 = 0x18;
     pub const EVENT: u8 = 0x1B;
+    pub const INT_STATUS_0: u8 = 0x1C;
+    pub const INT_STATUS_1: u8 = 0x1D;
 }
 
 pub struct ErrRegBits;
@@ -40,4 +42,25 @@ impl PersistentErrVal {
     pub const ACC_ERR: u8 = 0x01;
     pub const GYR_ERR: u8 = 0x02;
     pub const ACC_GYR_ERR: u8 = 0x03;
+}
+
+pub struct InterruptStatus0Bits;
+impl InterruptStatus0Bits {
+    pub const SIG_MOTION_OUT: u8 = 1;
+    pub const STEP_COUNTER_OUT: u8 = 1 << 1;
+    pub const ACTIVITY_OUT: u8 = 1 << 2;
+    pub const WRIST_WEAR_WAKEUP_OUT: u8 = 1 << 3;
+    pub const WRIST_GESTURE_OUT: u8 = 1 << 4;
+    pub const NO_MOTION_OUT: u8 = 1 << 5;
+    pub const ANY_MOTION_OUT: u8 = 1 << 6;
+}
+
+pub struct InterruptStatus1Bits;
+impl InterruptStatus1Bits {
+    pub const FFULL_INT: u8 = 1;
+    pub const FWM_INT: u8 = 1 << 1;
+    pub const ERR_INT: u8 = 1 << 2;
+    pub const AUX_DRDY_INT: u8 = 1 << 5;
+    pub const GYR_DRDY_INT: u8 = 1 << 6;
+    pub const ACC_DRDY_INT: u8 = 1 << 7;
 }

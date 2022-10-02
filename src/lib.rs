@@ -1,8 +1,13 @@
 #![no_std]
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
-use registers::{ErrRegBits, EventBits, PersistentErrVal, Registers, StatusBits};
-use types::{AuxData, AxisData, Data, Error, ErrorReg, Event, PersistentErrors, Status};
+use registers::{
+    ErrRegBits, EventBits, InterruptStatus0Bits, InterruptStatus1Bits, PersistentErrVal, Registers,
+    StatusBits,
+};
+use types::{
+    AuxData, AxisData, Data, Error, ErrorReg, Event, InterruptStatus, PersistentErrors, Status,
+};
 
 pub mod interface;
 mod registers;
@@ -138,6 +143,28 @@ where
                 PersistentErrVal::ACC_GYR_ERR => PersistentErrors::AccGyrErr,
                 _ => panic!(), // TODO
             },
+        })
+    }
+
+    /// Get the interrupt/feature status.
+    pub fn get_int_status(&mut self) -> Result<InterruptStatus, Error<CommE, CsE>> {
+        let int_stat_0 = self.iface.read_reg(Registers::INT_STATUS_0)?;
+        let int_stat_1 = self.iface.read_reg(Registers::INT_STATUS_1)?;
+
+        Ok(InterruptStatus {
+            sig_motion_out: (int_stat_0 & InterruptStatus0Bits::SIG_MOTION_OUT) != 0,
+            step_counter_out: (int_stat_0 & InterruptStatus0Bits::STEP_COUNTER_OUT) != 0,
+            activity_out: (int_stat_0 & InterruptStatus0Bits::ACTIVITY_OUT) != 0,
+            wrist_wear_wakeup_out: (int_stat_0 & InterruptStatus0Bits::WRIST_WEAR_WAKEUP_OUT) != 0,
+            wrist_gesture_out: (int_stat_0 & InterruptStatus0Bits::WRIST_GESTURE_OUT) != 0,
+            no_motion_out: (int_stat_0 & InterruptStatus0Bits::NO_MOTION_OUT) != 0,
+            any_motion_out: (int_stat_0 & InterruptStatus0Bits::ANY_MOTION_OUT) != 0,
+            ffull_int: (int_stat_1 & InterruptStatus1Bits::FFULL_INT) != 0,
+            fwm_int: (int_stat_1 & InterruptStatus1Bits::FWM_INT) != 0,
+            err_int: (int_stat_1 & InterruptStatus1Bits::ERR_INT) != 0,
+            aux_drdy_int: (int_stat_1 & InterruptStatus1Bits::AUX_DRDY_INT) != 0,
+            gyr_drdy_int: (int_stat_1 & InterruptStatus1Bits::GYR_DRDY_INT) != 0,
+            acc_drdy_int: (int_stat_1 & InterruptStatus1Bits::ACC_DRDY_INT) != 0,
         })
     }
 }

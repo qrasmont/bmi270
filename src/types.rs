@@ -80,3 +80,33 @@ pub struct Event {
     /// Persistent errors.
     pub persistent_err: PersistentErrors,
 }
+
+/// Interrut/Feature Status. Will be cleared on read.
+pub struct InterruptStatus {
+    /// Sigmotion output.
+    pub sig_motion_out: bool,
+    /// Step-counter watermark or Step-detector output.
+    pub step_counter_out: bool,
+    /// Step activity output.
+    pub activity_out: bool,
+    /// Wrist wear wakeup ouput
+    pub wrist_wear_wakeup_out: bool,
+    /// Wrist gesture output.
+    pub wrist_gesture_out: bool,
+    /// No motion detection output.
+    pub no_motion_out: bool,
+    /// Any motion detecion ouput.
+    pub any_motion_out: bool,
+    /// FIFO full interrupt.
+    pub ffull_int: bool,
+    /// FIFO watermark interrupt.
+    pub fwm_int: bool,
+    /// Error interrupt.
+    pub err_int: bool,
+    /// Auxiliary data ready interrupt.
+    pub aux_drdy_int: bool,
+    /// Gyroscope data ready interrupt.
+    pub gyr_drdy_int: bool,
+    /// Accelerometer data ready interrupt.
+    pub acc_drdy_int: bool,
+}
