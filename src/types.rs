@@ -176,3 +176,75 @@ pub struct InternalStatus {
     /// The min bandwidth contions are not respected.
     pub odr_50hz_error: bool,
 }
+
+/// Accelerometer Output Data Rate in Hz.
+pub enum AccOdr {
+    /// 25/32 Hz.
+    Odr0p78,
+    /// 25/16 Hz.
+    Odr1p5,
+    /// 25/8 Hz.
+    Odr3p1,
+    /// 25/4 Hz.
+    Odr6p25,
+    /// 25/2 Hz.
+    Odr12p5,
+    /// 25 Hz.
+    Odr25,
+    /// 50 Hz.
+    Odr50,
+    /// 100 Hz.
+    Odr100,
+    /// 200 Hz.
+    Odr200,
+    /// 400 Hz.
+    Odr400,
+    /// 800 Hz.
+    Odr800,
+    /// 1600 Hz.
+    Odr1k6,
+    /// 3200 Hz.
+    Odr3k2,
+    /// 6400 Hz.
+    Odr6k4,
+    /// 12800 Hz.
+    Odr12k8,
+}
+
+/// Accelerometer filter config & averaging.
+pub enum AccBwp {
+    /// OSR4 filter, no averaging.
+    Osr4Avg1,
+    /// OSR2 filter, average 2 samples.
+    Osr2Avg2,
+    /// Normal filter, average 4 samples.
+    NormAvg4,
+    /// CIC filter, average 8 samples.
+    CicAvg8,
+    /// Reserved filter, average 16 samples.
+    ResAvg16,
+    /// Reserved filter, average 32 samples.
+    ResAvg32,
+    /// Reserved filter, average 64 samples.
+    ResAvg64,
+    /// Reserved filter, average 128 samples.
+    ResAvg128,
+}
+
+/// Accelerometer filter performance mode.
+pub enum AccFilterPerf {
+    /// Power optimized.
+    Power,
+    /// Performance optimized.
+    Perf,
+}
+
+/// Accelerometer configuration.
+pub struct AccConf {
+    /// Accelerometer Output Data Rate in Hz.
+    pub odr: AccOdr,
+    /// Accelerometer filter config & averaging.
+    pub bwp: AccBwp,
+    /// Accelerometer filter performance mode.
+    pub filter_perf: AccFilterPerf,
+}

@@ -17,6 +17,7 @@ impl Registers {
     pub const TEMPERATURE_0: u8 = 0x22;
     pub const FIFO_LENGTH_0: u8 = 0x24;
     pub const FIFO_DATA: u8 = 0x26;
+    pub const ACC_CONF: u8 = 0x40;
 }
 
 pub struct ErrRegBits;
@@ -115,3 +116,47 @@ impl InternalStatusBits {
 }
 
 pub const FIFO_LENGTH_1_BITS: u8 = 0b0011_1111;
+
+pub struct AccOrdVal;
+impl AccOrdVal {
+    pub const ODR_0P78: u8 = 0x01;
+    pub const ODR_1P5: u8 = 0x02;
+    pub const ODR_3P1: u8 = 0x03;
+    pub const ODR_6P25: u8 = 0x04;
+    pub const ODR_12P5: u8 = 0x05;
+    pub const ODR_25: u8 = 0x06;
+    pub const ODR_50: u8 = 0x07;
+    pub const ODR_100: u8 = 0x08;
+    pub const ODR_200: u8 = 0x09;
+    pub const ODR_400: u8 = 0x0A;
+    pub const ODR_800: u8 = 0x0B;
+    pub const ODR_1K6: u8 = 0x0C;
+    pub const ODR_3K2: u8 = 0x0D;
+    pub const ODR_6K4: u8 = 0x0E;
+    pub const ODR_12K8: u8 = 0x0F;
+}
+
+pub struct AccBwpVal;
+impl AccBwpVal {
+    pub const OSR4_AVG1: u8 = 0x00;
+    pub const OSR2_AVG2: u8 = 0x01;
+    pub const NORM_AVG4: u8 = 0x02;
+    pub const CIC_AVG8: u8 = 0x03;
+    pub const RES_AVG16: u8 = 0x04;
+    pub const RES_AVG32: u8 = 0x05;
+    pub const RES_AVG64: u8 = 0x06;
+    pub const RES_AVG128: u8 = 0x07;
+}
+
+pub struct AccFilterPerfVal;
+impl AccFilterPerfVal {
+    pub const POWER: u8 = 0x00;
+    pub const PERF: u8 = 0x01;
+}
+
+pub struct AccConfBits;
+impl AccConfBits {
+    pub const ACC_ODR: u8 = 0b0000_1111;
+    pub const ACC_BWP: u8 = 0b0111_0000;
+    pub const ACC_FILTER_PERF: u8 = 1 << 7;
+}

@@ -4,11 +4,11 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::{
     ActivityOutVal, ErrRegBits, EventBits, InternalStatusBits, InterruptStatus0Bits,
     InterruptStatus1Bits, MessageVal, PersistentErrVal, Registers, StatusBits,
-    WristGestureActivityBits, WristGestureOutVal, FIFO_LENGTH_1_BITS,
+    WristGestureActivityBits, WristGestureOutVal, FIFO_LENGTH_1_BITS, AccConfBits, AccOrdVal, AccBwpVal, AccFilterPerfVal,
 };
 use types::{
     Activity, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus, InterruptStatus,
-    Message, PersistentErrors, Status, WristGesture, WristGestureActivity,
+    Message, PersistentErrors, Status, WristGesture, WristGestureActivity, AccConf, AccOdr, AccBwp, AccFilterPerf,
 };
 
 pub mod interface;
@@ -251,6 +251,48 @@ where
     pub fn get_fifo_data(&mut self) -> Result<(), Error<CommE, CsE>> {
         // TODO Fifo is 6KB, will need the max read info from user + fifo config
         Ok(())
+    }
+
+    /// Get the accelerometer configuration.
+    pub fn get_acc_conf(&mut self) -> Result<AccConf, Error<CommE, CsE>> {
+        let acc_conf = self.iface.read_reg(Registers::ACC_CONF)?;
+        Ok(AccConf {
+            odr: match acc_conf & AccConfBits::ACC_ODR {
+                AccOrdVal::ODR_0P78 => AccOdr::Odr0p78,
+                AccOrdVal::ODR_1P5 => AccOdr::Odr1p5,
+                AccOrdVal::ODR_3P1 => AccOdr::Odr3p1,
+                AccOrdVal::ODR_6P25 => AccOdr::Odr6p25,
+                AccOrdVal::ODR_12P5 => AccOdr::Odr12p5,
+                AccOrdVal::ODR_25 => AccOdr::Odr25,
+                AccOrdVal::ODR_50 => AccOdr::Odr50,
+                AccOrdVal::ODR_100 => AccOdr::Odr100,
+                AccOrdVal::ODR_200 => AccOdr::Odr200,
+                AccOrdVal::ODR_400 => AccOdr::Odr400,
+                AccOrdVal::ODR_800 => AccOdr::Odr800,
+                AccOrdVal::ODR_1K6 => AccOdr::Odr1k6,
+                AccOrdVal::ODR_3K2 => AccOdr::Odr3k2,
+                AccOrdVal::ODR_6K4 => AccOdr::Odr6k4,
+                AccOrdVal::ODR_12K8 => AccOdr::Odr12k8,
+                _ => panic!(), // TODO
+            },
+            bwp: match (acc_conf & AccConfBits::ACC_BWP) >> 4 {
+                AccBwpVal::OSR4_AVG1 => AccBwp::Osr4Avg1,
+                AccBwpVal::OSR2_AVG2 => AccBwp::Osr2Avg2,
+                AccBwpVal::NORM_AVG4 => AccBwp::NormAvg4,
+                AccBwpVal::CIC_AVG8 => AccBwp::CicAvg8,
+                AccBwpVal::RES_AVG16 => AccBwp::ResAvg16,
+                AccBwpVal::RES_AVG32 => AccBwp::ResAvg32,
+                AccBwpVal::RES_AVG64 => AccBwp::ResAvg64,
+                AccBwpVal::RES_AVG128 => AccBwp::ResAvg128,
+                _ => panic!(), // TODO
+            },
+            filter_perf: match (acc_conf & AccConfBits::ACC_FILTER_PERF) >> 7 {
+                AccFilterPerfVal::POWER => AccFilterPerf::Power,
+                AccFilterPerfVal::PERF => AccFilterPerf::Perf,
+                _ => panic!(), // TODO
+            },
+
+        })
     }
 }
 
