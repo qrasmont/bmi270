@@ -226,6 +226,18 @@ where
             odr_50hz_error: (internal_status & InternalStatusBits::ODR_50HZ_ERROR) != 0,
         })
     }
+
+    /// Get the sensor temperature.
+    pub fn get_temperature(&mut self) -> Result<Option<f32>, Error<CommE, CsE>> {
+        let mut payload = [Registers::TEMPERATURE_0, 0, 0];
+        self.iface.read(&mut payload)?;
+        let raw_temp = u16::from(payload[1]) | u16::from(payload[2]) << 8;
+
+        Ok(match raw_temp {
+            0x8000 => None,
+            _ => Some(f32::from(raw_temp as i16) * (1.0_f32 / 512.0_f32) + 23.0),
+        })
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {

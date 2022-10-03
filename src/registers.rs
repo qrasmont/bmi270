@@ -14,6 +14,7 @@ impl Registers {
     pub const SC_OUT_0: u8 = 0x1E;
     pub const WR_GEST_ACT: u8 = 0x20;
     pub const INTERNAL_STATUS: u8 = 0x21;
+    pub const TEMPERATURE_0: u8 = 0x22;
 }
 
 pub struct ErrRegBits;
