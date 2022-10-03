@@ -146,3 +146,33 @@ pub struct WristGestureActivity {
     /// Activity.
     pub activity: Activity,
 }
+
+/// Internal status message.
+pub enum Message {
+    /// ASIC is not initialized.
+    NotInit,
+    /// ASIC initialized.
+    InitOk,
+    /// initialization error.
+    InitErr,
+    /// Ivalid driver.
+    DrvErr,
+    /// Sensor stopped.
+    SnsErr,
+    /// Internal error while accessing NVM.
+    NvmErr,
+    /// Internal error while accessing NVM and initialization error.
+    StartUpErr,
+    /// Compatibility error.
+    CompatErr,
+}
+
+/// Internal status.
+pub struct InternalStatus {
+    /// Internal status message.
+    pub message: Message,
+    /// Incorrect axies remapping.
+    pub axes_remap_error: bool,
+    /// The min bandwidth contions are not respected.
+    pub odr_50hz_error: bool,
+}

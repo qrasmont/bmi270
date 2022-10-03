@@ -13,6 +13,7 @@ impl Registers {
     pub const INT_STATUS_1: u8 = 0x1D;
     pub const SC_OUT_0: u8 = 0x1E;
     pub const WR_GEST_ACT: u8 = 0x20;
+    pub const INTERNAL_STATUS: u8 = 0x21;
 }
 
 pub struct ErrRegBits;
@@ -89,4 +90,23 @@ pub struct WristGestureActivityBits;
 impl WristGestureActivityBits {
     pub const WRIST_GESTURE: u8 = 0b0000_0111;
     pub const ACTIVITY: u8 = 0b0001_1000;
+}
+
+pub struct MessageVal;
+impl MessageVal {
+    pub const NOT_INIT: u8 = 0x00;
+    pub const INIT_OK: u8 = 0x01;
+    pub const INIT_ERR: u8 = 0x02;
+    pub const DRV_ERR: u8 = 0x03;
+    pub const SNS_ERR: u8 = 0x04;
+    pub const NVM_ERR: u8 = 0x05;
+    pub const STARTUP_ERR: u8 = 0x06;
+    pub const COMPAT_ERR: u8 = 0x07;
+}
+
+pub struct InternalStatusBits;
+impl InternalStatusBits {
+    pub const MESSAGE: u8 = 0b0000_0111;
+    pub const AXES_REMAP_ERROR: u8 = 1 << 5;
+    pub const ODR_50HZ_ERROR: u8 = 1 << 6;
 }

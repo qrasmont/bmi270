@@ -2,12 +2,13 @@
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::{
-    ActivityOutVal, ErrRegBits, EventBits, InterruptStatus0Bits, InterruptStatus1Bits,
-    PersistentErrVal, Registers, StatusBits, WristGestureActivityBits, WristGestureOutVal,
+    ActivityOutVal, ErrRegBits, EventBits, InternalStatusBits, InterruptStatus0Bits,
+    InterruptStatus1Bits, MessageVal, PersistentErrVal, Registers, StatusBits,
+    WristGestureActivityBits, WristGestureOutVal,
 };
 use types::{
-    Activity, AuxData, AxisData, Data, Error, ErrorReg, Event, InterruptStatus, PersistentErrors,
-    Status, WristGesture, WristGestureActivity,
+    Activity, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus, InterruptStatus,
+    Message, PersistentErrors, Status, WristGesture, WristGestureActivity,
 };
 
 pub mod interface;
@@ -202,6 +203,27 @@ where
                 ActivityOutVal::UNKNOWN => Activity::Unknown,
                 _ => panic!(), // TODO
             },
+        })
+    }
+
+    /// Get the sensor internal status.
+    pub fn get_internal_status(&mut self) -> Result<InternalStatus, Error<CommE, CsE>> {
+        let internal_status = self.iface.read_reg(Registers::INTERNAL_STATUS)?;
+
+        Ok(InternalStatus {
+            message: match internal_status & InternalStatusBits::MESSAGE {
+                MessageVal::NOT_INIT => Message::NotInit,
+                MessageVal::INIT_OK => Message::InitOk,
+                MessageVal::INIT_ERR => Message::InitErr,
+                MessageVal::DRV_ERR => Message::DrvErr,
+                MessageVal::SNS_ERR => Message::SnsErr,
+                MessageVal::NVM_ERR => Message::NvmErr,
+                MessageVal::STARTUP_ERR => Message::StartUpErr,
+                MessageVal::COMPAT_ERR => Message::CompatErr,
+                _ => panic!(), // TODO
+            },
+            axes_remap_error: (internal_status & InternalStatusBits::AXES_REMAP_ERROR) != 0,
+            odr_50hz_error: (internal_status & InternalStatusBits::ODR_50HZ_ERROR) != 0,
         })
     }
 }
