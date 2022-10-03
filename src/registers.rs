@@ -15,6 +15,7 @@ impl Registers {
     pub const WR_GEST_ACT: u8 = 0x20;
     pub const INTERNAL_STATUS: u8 = 0x21;
     pub const TEMPERATURE_0: u8 = 0x22;
+    pub const FIFO_LENGTH_0: u8 = 0x24;
 }
 
 pub struct ErrRegBits;
@@ -111,3 +112,5 @@ impl InternalStatusBits {
     pub const AXES_REMAP_ERROR: u8 = 1 << 5;
     pub const ODR_50HZ_ERROR: u8 = 1 << 6;
 }
+
+pub const FIFO_LENGTH_1_BITS: u8 = 0b0011_1111;

@@ -4,7 +4,7 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::{
     ActivityOutVal, ErrRegBits, EventBits, InternalStatusBits, InterruptStatus0Bits,
     InterruptStatus1Bits, MessageVal, PersistentErrVal, Registers, StatusBits,
-    WristGestureActivityBits, WristGestureOutVal,
+    WristGestureActivityBits, WristGestureOutVal, FIFO_LENGTH_1_BITS,
 };
 use types::{
     Activity, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus, InterruptStatus,
@@ -237,6 +237,15 @@ where
             0x8000 => None,
             _ => Some(f32::from(raw_temp as i16) * (1.0_f32 / 512.0_f32) + 23.0),
         })
+    }
+
+    /// Get the current fill level of the FIFO buffer.
+    pub fn get_fifo_len(&mut self) -> Result<i16, Error<CommE, CsE>> {
+        let mut payload = [Registers::FIFO_LENGTH_0, 0, 0];
+        self.iface.read(&mut payload)?;
+        let len = i16::from(payload[1]) | i16::from(payload[2] & FIFO_LENGTH_1_BITS) << 8;
+
+        Ok(len)
     }
 }
 
