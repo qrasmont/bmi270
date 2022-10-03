@@ -247,6 +247,11 @@ where
 
         Ok(len)
     }
+
+    pub fn get_fifo_data(&mut self) -> Result<(), Error<CommE, CsE>> {
+        // TODO Fifo is 6KB, will need the max read info from user + fifo config
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {

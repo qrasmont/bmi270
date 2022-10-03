@@ -16,6 +16,7 @@ impl Registers {
     pub const INTERNAL_STATUS: u8 = 0x21;
     pub const TEMPERATURE_0: u8 = 0x22;
     pub const FIFO_LENGTH_0: u8 = 0x24;
+    pub const FIFO_DATA: u8 = 0x26;
 }
 
 pub struct ErrRegBits;
