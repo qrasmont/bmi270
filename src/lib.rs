@@ -202,6 +202,13 @@ where
         let acc_range = self.iface.read_reg(Registers::ACC_RANGE)?;
         Ok(AccRange::from_reg(acc_range))
     }
+
+    /// Set the accelerometer range.
+    pub fn set_acc_range(&mut self, acc_range: AccRange) -> Result<(), Error<CommE, CsE>> {
+        self.iface
+            .write_reg(Registers::ACC_RANGE, acc_range as u8)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {
