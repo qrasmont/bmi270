@@ -3,7 +3,7 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus,
+    AccConf, AccRange, AuxData, AxisData, Data, Error, ErrorReg, Event, GyrConf, InternalStatus,
     InterruptStatus, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
@@ -207,6 +207,19 @@ where
     pub fn set_acc_range(&mut self, acc_range: AccRange) -> Result<(), Error<CommE, CsE>> {
         self.iface
             .write_reg(Registers::ACC_RANGE, acc_range as u8)?;
+        Ok(())
+    }
+
+    /// Get the gyroscope configuration.
+    pub fn get_gyr_conf(&mut self) -> Result<GyrConf, Error<CommE, CsE>> {
+        let gyr_conf = self.iface.read_reg(Registers::GYR_CONF)?;
+        Ok(GyrConf::from_reg(gyr_conf))
+    }
+
+    /// Set the gyroscope configuration.
+    pub fn set_gyr_conf(&mut self, gyr_conf: GyrConf) -> Result<(), Error<CommE, CsE>> {
+        let reg = gyr_conf.to_reg();
+        self.iface.write_reg(Registers::GYR_CONF, reg)?;
         Ok(())
     }
 }

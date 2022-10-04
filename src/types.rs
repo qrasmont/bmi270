@@ -350,7 +350,7 @@ impl AccConfMask {
 
 /// Accelerometer Output Data Rate in Hz.
 #[repr(u8)]
-pub enum AccOdr {
+pub enum Odr {
     /// 25/32 Hz.
     Odr0p78 = 0x01,
     /// 25/16 Hz.
@@ -406,7 +406,7 @@ pub enum AccBwp {
 
 /// Accelerometer filter performance mode.
 #[repr(u8)]
-pub enum AccFilterPerf {
+pub enum PerfMode {
     /// Power optimized.
     Power = 0x00,
     /// Performance optimized.
@@ -416,32 +416,32 @@ pub enum AccFilterPerf {
 /// Accelerometer configuration.
 pub struct AccConf {
     /// Accelerometer Output Data Rate in Hz.
-    pub odr: AccOdr,
+    pub odr: Odr,
     /// Accelerometer filter config & averaging.
     pub bwp: AccBwp,
     /// Accelerometer filter performance mode.
-    pub filter_perf: AccFilterPerf,
+    pub filter_perf: PerfMode,
 }
 
 impl AccConf {
     pub fn from_reg(reg: u8) -> AccConf {
         AccConf {
             odr: match reg & AccConfMask::ACC_ODR {
-                0x01 => AccOdr::Odr0p78,
-                0x02 => AccOdr::Odr1p5,
-                0x03 => AccOdr::Odr3p1,
-                0x04 => AccOdr::Odr6p25,
-                0x05 => AccOdr::Odr12p5,
-                0x06 => AccOdr::Odr25,
-                0x07 => AccOdr::Odr50,
-                0x08 => AccOdr::Odr100,
-                0x09 => AccOdr::Odr200,
-                0x0A => AccOdr::Odr400,
-                0x0B => AccOdr::Odr800,
-                0x0C => AccOdr::Odr1k6,
-                0x0D => AccOdr::Odr3k2,
-                0x0E => AccOdr::Odr6k4,
-                0x0F => AccOdr::Odr12k8,
+                0x01 => Odr::Odr0p78,
+                0x02 => Odr::Odr1p5,
+                0x03 => Odr::Odr3p1,
+                0x04 => Odr::Odr6p25,
+                0x05 => Odr::Odr12p5,
+                0x06 => Odr::Odr25,
+                0x07 => Odr::Odr50,
+                0x08 => Odr::Odr100,
+                0x09 => Odr::Odr200,
+                0x0A => Odr::Odr400,
+                0x0B => Odr::Odr800,
+                0x0C => Odr::Odr1k6,
+                0x0D => Odr::Odr3k2,
+                0x0E => Odr::Odr6k4,
+                0x0F => Odr::Odr12k8,
                 _ => panic!(), // TODO
             },
             bwp: match (reg & AccConfMask::ACC_BWP) >> 4 {
@@ -456,8 +456,8 @@ impl AccConf {
                 _ => panic!(), // TODO
             },
             filter_perf: match (reg & AccConfMask::ACC_FILTER_PERF) >> 7 {
-                0x00 => AccFilterPerf::Power,
-                0x01 => AccFilterPerf::Perf,
+                0x00 => PerfMode::Power,
+                0x01 => PerfMode::Perf,
                 _ => panic!(), // TODO
             },
         }
@@ -494,5 +494,89 @@ impl AccRange {
             0x03 => AccRange::Range16g,
             _ => panic!(), // TODO
         }
+    }
+}
+
+pub struct GyrConfMask;
+impl GyrConfMask {
+    pub const GYR_ODR: u8 = 0b0000_1111;
+    pub const GYR_BWP: u8 = 0b0011_0000;
+    pub const GYR_NOISE_PERF: u8 = 1 << 6;
+    pub const GYR_FILTER_PERF: u8 = 1 << 7;
+}
+
+/// Gyroscope filter config & averaging.
+#[repr(u8)]
+pub enum GyrBwp {
+    /// OSR4 filter, no averaging.
+    Osr4 = 0x00,
+    /// OSR2 filter, average 2 samples.
+    Osr2 = 0x01,
+    /// Normal filter, average 4 samples.
+    Norm = 0x02,
+    /// CIC filter, average 8 samples.
+    Res = 0x03,
+}
+
+/// Gyroscope configuration.
+pub struct GyrConf {
+    /// Gyroscope Output Data Rate in Hz.
+    pub odr: Odr,
+    /// Gyroscope 3dB cutoff frequency for the low pass filter.
+    pub bwp: GyrBwp,
+    /// Gyroscope noise performance mode.
+    pub noise_perf: PerfMode,
+    /// Gyroscope filter performance mode.
+    pub filter_perf: PerfMode,
+}
+
+impl GyrConf {
+    pub fn from_reg(reg: u8) -> GyrConf {
+        GyrConf {
+            odr: match reg & GyrConfMask::GYR_ODR {
+                0x01 => Odr::Odr0p78,
+                0x02 => Odr::Odr1p5,
+                0x03 => Odr::Odr3p1,
+                0x04 => Odr::Odr6p25,
+                0x05 => Odr::Odr12p5,
+                0x06 => Odr::Odr25,
+                0x07 => Odr::Odr50,
+                0x08 => Odr::Odr100,
+                0x09 => Odr::Odr200,
+                0x0A => Odr::Odr400,
+                0x0B => Odr::Odr800,
+                0x0C => Odr::Odr1k6,
+                0x0D => Odr::Odr3k2,
+                0x0E => Odr::Odr6k4,
+                0x0F => Odr::Odr12k8,
+                _ => panic!(), // TODO
+            },
+            bwp: match (reg & GyrConfMask::GYR_BWP) >> 4 {
+                0x00 => GyrBwp::Osr4,
+                0x01 => GyrBwp::Osr2,
+                0x02 => GyrBwp::Norm,
+                0x03 => GyrBwp::Res,
+                _ => panic!(), // TODO
+            },
+            noise_perf: match (reg & GyrConfMask::GYR_NOISE_PERF) >> 6 {
+                0x00 => PerfMode::Power,
+                0x01 => PerfMode::Perf,
+                _ => panic!(), // TODO
+            },
+            filter_perf: match (reg & GyrConfMask::GYR_FILTER_PERF) >> 7 {
+                0x00 => PerfMode::Power,
+                0x01 => PerfMode::Perf,
+                _ => panic!(), // TODO
+            },
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let odr = self.odr as u8;
+        let bwp = self.bwp as u8;
+        let noise_perf = self.noise_perf as u8;
+        let filter_perf = self.filter_perf as u8;
+
+        odr | bwp << 4 | noise_perf << 6 | filter_perf << 7
     }
 }
