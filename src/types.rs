@@ -580,3 +580,56 @@ impl GyrConf {
         odr | bwp << 4 | noise_perf << 6 | filter_perf << 7
     }
 }
+
+pub struct GyrRangeMask;
+impl GyrRangeMask {
+    pub const GYR_RANGE: u8 = 0b0000_0011;
+    pub const OIS_RANGE: u8 = 1 << 3;
+}
+
+#[repr(u8)]
+pub enum GyrRangeVal {
+    Range2000 = 0x00,
+    Range1000 = 0x01,
+    Range500 = 0x02,
+    Range250 = 0x03,
+    Range125 = 0x04,
+}
+
+#[repr(u8)]
+pub enum OisRange {
+    Range250 = 0x00,
+    Range2000 = 0x01,
+}
+
+pub struct GyrRange {
+    pub range: GyrRangeVal,
+    pub ois_range: OisRange,
+}
+
+impl GyrRange {
+    pub fn from_reg(reg: u8) -> GyrRange {
+        GyrRange {
+            range: match reg & GyrRangeMask::GYR_RANGE {
+                0x00 => GyrRangeVal::Range2000,
+                0x01 => GyrRangeVal::Range1000,
+                0x02 => GyrRangeVal::Range500,
+                0x03 => GyrRangeVal::Range250,
+                0x04 => GyrRangeVal::Range125,
+                _ => panic!(), // TODO
+            },
+            ois_range: match (reg & GyrRangeMask::OIS_RANGE) >> 3 {
+                0x00 => OisRange::Range250,
+                0x01 => OisRange::Range2000,
+                _ => panic!(), // TODO
+            },
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let range = self.range as u8;
+        let ois = self.ois_range as u8;
+
+        range | ois << 3
+    }
+}
