@@ -189,6 +189,13 @@ where
         let acc_conf = self.iface.read_reg(Registers::ACC_CONF)?;
         Ok(AccConf::from_reg(acc_conf))
     }
+
+    /// Set the accelerometer configuration.
+    pub fn set_acc_conf(&mut self, acc_conf: AccConf) -> Result<(), Error<CommE, CsE>> {
+        let reg = acc_conf.to_reg();
+        self.iface.write_reg(Registers::ACC_CONF, reg)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {

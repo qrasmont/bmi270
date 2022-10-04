@@ -462,4 +462,12 @@ impl AccConf {
             },
         }
     }
+
+    pub fn to_reg(self) -> u8 {
+        let odr = self.odr as u8;
+        let bwp = self.bwp as u8;
+        let filter_perf = self.filter_perf as u8;
+
+        odr | bwp << 4 | filter_perf << 7
+    }
 }
