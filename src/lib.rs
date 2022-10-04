@@ -1,14 +1,10 @@
 #![no_std]
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
-use registers::{
-    ActivityOutVal, ErrRegBits, EventBits, InternalStatusBits, InterruptStatus0Bits,
-    InterruptStatus1Bits, MessageVal, PersistentErrVal, Registers, StatusBits,
-    WristGestureActivityBits, WristGestureOutVal, FIFO_LENGTH_1_BITS, AccConfBits, AccOrdVal, AccBwpVal, AccFilterPerfVal,
-};
+use registers::Registers;
 use types::{
-    Activity, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus, InterruptStatus,
-    Message, PersistentErrors, Status, WristGesture, WristGestureActivity, AccConf, AccOdr, AccBwp, AccFilterPerf,
+    AccConf, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus, InterruptStatus,
+    Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -60,25 +56,14 @@ where
     pub fn get_errors(&mut self) -> Result<ErrorReg, Error<CommE, CsE>> {
         let errors = self.iface.read_reg(Registers::ERR_REG)?;
 
-        Ok(ErrorReg {
-            fatal_err: (errors & ErrRegBits::FATAL_ERR) != 0,
-            internal_err: errors & ErrRegBits::INTERNAL_ERR,
-            fifo_err: (errors & ErrRegBits::FIFO_ERR) != 0,
-            aux_err: (errors & ErrRegBits::AUX_ERR) != 0,
-        })
+        Ok(ErrorReg::from_reg(errors))
     }
 
     /// Get the sensor status.
     pub fn get_status(&mut self) -> Result<Status, Error<CommE, CsE>> {
         let status = self.iface.read_reg(Registers::STATUS)?;
 
-        Ok(Status {
-            acc_data_ready: (status & StatusBits::DRDY_ACC) != 0,
-            gyr_data_ready: (status & StatusBits::DRDY_GYR) != 0,
-            aux_data_ready: (status & StatusBits::DRDY_AUX) != 0,
-            cmd_ready: (status & StatusBits::CMD_RDY) != 0,
-            aux_dev_busy: (status & StatusBits::AUX_BUSY) != 0,
-        })
+        Ok(Status::from_reg(status))
     }
 
     /// Get the sensor auxiliary data.
@@ -136,16 +121,7 @@ where
     pub fn get_event(&mut self) -> Result<Event, Error<CommE, CsE>> {
         let event = self.iface.read_reg(Registers::EVENT)?;
 
-        Ok(Event {
-            por_detected: (event & EventBits::POR_DETECTED) != 0,
-            persistent_err: match (event & EventBits::ERR_CODE) >> 2 {
-                PersistentErrVal::NO_ERR => PersistentErrors::NoErr,
-                PersistentErrVal::ACC_ERR => PersistentErrors::AccErr,
-                PersistentErrVal::GYR_ERR => PersistentErrors::GyrErr,
-                PersistentErrVal::ACC_GYR_ERR => PersistentErrors::AccGyrErr,
-                _ => panic!(), // TODO
-            },
-        })
+        Ok(Event::from_reg(event))
     }
 
     /// Get the interrupt/feature status.
@@ -153,21 +129,7 @@ where
         let int_stat_0 = self.iface.read_reg(Registers::INT_STATUS_0)?;
         let int_stat_1 = self.iface.read_reg(Registers::INT_STATUS_1)?;
 
-        Ok(InterruptStatus {
-            sig_motion_out: (int_stat_0 & InterruptStatus0Bits::SIG_MOTION_OUT) != 0,
-            step_counter_out: (int_stat_0 & InterruptStatus0Bits::STEP_COUNTER_OUT) != 0,
-            activity_out: (int_stat_0 & InterruptStatus0Bits::ACTIVITY_OUT) != 0,
-            wrist_wear_wakeup_out: (int_stat_0 & InterruptStatus0Bits::WRIST_WEAR_WAKEUP_OUT) != 0,
-            wrist_gesture_out: (int_stat_0 & InterruptStatus0Bits::WRIST_GESTURE_OUT) != 0,
-            no_motion_out: (int_stat_0 & InterruptStatus0Bits::NO_MOTION_OUT) != 0,
-            any_motion_out: (int_stat_0 & InterruptStatus0Bits::ANY_MOTION_OUT) != 0,
-            ffull_int: (int_stat_1 & InterruptStatus1Bits::FFULL_INT) != 0,
-            fwm_int: (int_stat_1 & InterruptStatus1Bits::FWM_INT) != 0,
-            err_int: (int_stat_1 & InterruptStatus1Bits::ERR_INT) != 0,
-            aux_drdy_int: (int_stat_1 & InterruptStatus1Bits::AUX_DRDY_INT) != 0,
-            gyr_drdy_int: (int_stat_1 & InterruptStatus1Bits::GYR_DRDY_INT) != 0,
-            acc_drdy_int: (int_stat_1 & InterruptStatus1Bits::ACC_DRDY_INT) != 0,
-        })
+        Ok(InterruptStatus::from_regs(int_stat_0, int_stat_1))
     }
 
     /// Get the step count.
@@ -186,45 +148,14 @@ where
     ) -> Result<WristGestureActivity, Error<CommE, CsE>> {
         let wr_gest_acc = self.iface.read_reg(Registers::WR_GEST_ACT)?;
 
-        Ok(WristGestureActivity {
-            wrist_gesture: match wr_gest_acc & WristGestureActivityBits::WRIST_GESTURE {
-                WristGestureOutVal::UNKNOWN => WristGesture::Unknown,
-                WristGestureOutVal::PUSH_ARM_DOWN => WristGesture::PushArmDown,
-                WristGestureOutVal::PIVOT_UP => WristGesture::PivotUp,
-                WristGestureOutVal::SHAKE => WristGesture::Shake,
-                WristGestureOutVal::FLICK_IN => WristGesture::FlickIn,
-                WristGestureOutVal::FLICK_OUT => WristGesture::FlickOut,
-                _ => panic!(), // TODO
-            },
-            activity: match (wr_gest_acc & WristGestureActivityBits::ACTIVITY) >> 3 {
-                ActivityOutVal::STILL => Activity::Still,
-                ActivityOutVal::WALKING => Activity::Walking,
-                ActivityOutVal::RUNNING => Activity::Running,
-                ActivityOutVal::UNKNOWN => Activity::Unknown,
-                _ => panic!(), // TODO
-            },
-        })
+        Ok(WristGestureActivity::from_reg(wr_gest_acc))
     }
 
     /// Get the sensor internal status.
     pub fn get_internal_status(&mut self) -> Result<InternalStatus, Error<CommE, CsE>> {
         let internal_status = self.iface.read_reg(Registers::INTERNAL_STATUS)?;
 
-        Ok(InternalStatus {
-            message: match internal_status & InternalStatusBits::MESSAGE {
-                MessageVal::NOT_INIT => Message::NotInit,
-                MessageVal::INIT_OK => Message::InitOk,
-                MessageVal::INIT_ERR => Message::InitErr,
-                MessageVal::DRV_ERR => Message::DrvErr,
-                MessageVal::SNS_ERR => Message::SnsErr,
-                MessageVal::NVM_ERR => Message::NvmErr,
-                MessageVal::STARTUP_ERR => Message::StartUpErr,
-                MessageVal::COMPAT_ERR => Message::CompatErr,
-                _ => panic!(), // TODO
-            },
-            axes_remap_error: (internal_status & InternalStatusBits::AXES_REMAP_ERROR) != 0,
-            odr_50hz_error: (internal_status & InternalStatusBits::ODR_50HZ_ERROR) != 0,
-        })
+        Ok(InternalStatus::from_reg(internal_status))
     }
 
     /// Get the sensor temperature.
@@ -243,7 +174,7 @@ where
     pub fn get_fifo_len(&mut self) -> Result<i16, Error<CommE, CsE>> {
         let mut payload = [Registers::FIFO_LENGTH_0, 0, 0];
         self.iface.read(&mut payload)?;
-        let len = i16::from(payload[1]) | i16::from(payload[2] & FIFO_LENGTH_1_BITS) << 8;
+        let len = i16::from(payload[1]) | i16::from(payload[2] & FIFO_LENGTH_1_MASK) << 8;
 
         Ok(len)
     }
@@ -256,43 +187,7 @@ where
     /// Get the accelerometer configuration.
     pub fn get_acc_conf(&mut self) -> Result<AccConf, Error<CommE, CsE>> {
         let acc_conf = self.iface.read_reg(Registers::ACC_CONF)?;
-        Ok(AccConf {
-            odr: match acc_conf & AccConfBits::ACC_ODR {
-                AccOrdVal::ODR_0P78 => AccOdr::Odr0p78,
-                AccOrdVal::ODR_1P5 => AccOdr::Odr1p5,
-                AccOrdVal::ODR_3P1 => AccOdr::Odr3p1,
-                AccOrdVal::ODR_6P25 => AccOdr::Odr6p25,
-                AccOrdVal::ODR_12P5 => AccOdr::Odr12p5,
-                AccOrdVal::ODR_25 => AccOdr::Odr25,
-                AccOrdVal::ODR_50 => AccOdr::Odr50,
-                AccOrdVal::ODR_100 => AccOdr::Odr100,
-                AccOrdVal::ODR_200 => AccOdr::Odr200,
-                AccOrdVal::ODR_400 => AccOdr::Odr400,
-                AccOrdVal::ODR_800 => AccOdr::Odr800,
-                AccOrdVal::ODR_1K6 => AccOdr::Odr1k6,
-                AccOrdVal::ODR_3K2 => AccOdr::Odr3k2,
-                AccOrdVal::ODR_6K4 => AccOdr::Odr6k4,
-                AccOrdVal::ODR_12K8 => AccOdr::Odr12k8,
-                _ => panic!(), // TODO
-            },
-            bwp: match (acc_conf & AccConfBits::ACC_BWP) >> 4 {
-                AccBwpVal::OSR4_AVG1 => AccBwp::Osr4Avg1,
-                AccBwpVal::OSR2_AVG2 => AccBwp::Osr2Avg2,
-                AccBwpVal::NORM_AVG4 => AccBwp::NormAvg4,
-                AccBwpVal::CIC_AVG8 => AccBwp::CicAvg8,
-                AccBwpVal::RES_AVG16 => AccBwp::ResAvg16,
-                AccBwpVal::RES_AVG32 => AccBwp::ResAvg32,
-                AccBwpVal::RES_AVG64 => AccBwp::ResAvg64,
-                AccBwpVal::RES_AVG128 => AccBwp::ResAvg128,
-                _ => panic!(), // TODO
-            },
-            filter_perf: match (acc_conf & AccConfBits::ACC_FILTER_PERF) >> 7 {
-                AccFilterPerfVal::POWER => AccFilterPerf::Power,
-                AccFilterPerfVal::PERF => AccFilterPerf::Perf,
-                _ => panic!(), // TODO
-            },
-
-        })
+        Ok(AccConf::from_reg(acc_conf))
     }
 }
 
