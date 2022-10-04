@@ -3,8 +3,8 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus, InterruptStatus,
-    Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    AccConf, AccRange, AuxData, AxisData, Data, Error, ErrorReg, Event, InternalStatus,
+    InterruptStatus, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -195,6 +195,12 @@ where
         let reg = acc_conf.to_reg();
         self.iface.write_reg(Registers::ACC_CONF, reg)?;
         Ok(())
+    }
+
+    /// Get the accelerometer range.
+    pub fn get_acc_range(&mut self) -> Result<AccRange, Error<CommE, CsE>> {
+        let acc_range = self.iface.read_reg(Registers::ACC_RANGE)?;
+        Ok(AccRange::from_reg(acc_range))
     }
 }
 

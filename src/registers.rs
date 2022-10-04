@@ -17,4 +17,5 @@ impl Registers {
     pub const FIFO_LENGTH_0: u8 = 0x24;
     pub const FIFO_DATA: u8 = 0x26;
     pub const ACC_CONF: u8 = 0x40;
+    pub const ACC_RANGE: u8 = 0x41;
 }

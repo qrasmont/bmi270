@@ -471,3 +471,28 @@ impl AccConf {
         odr | bwp << 4 | filter_perf << 7
     }
 }
+
+/// Accelerometer g range.
+#[repr(u8)]
+pub enum AccRange {
+    /// +/- 2g.
+    Range2g = 0x00,
+    /// +/- 4g.
+    Range4g = 0x01,
+    /// +/- 8g.
+    Range8g = 0x02,
+    /// +/- 16g.
+    Range16g = 0x03,
+}
+
+impl AccRange {
+    pub fn from_reg(reg: u8) -> AccRange {
+        match reg {
+            0x00 => AccRange::Range2g,
+            0x01 => AccRange::Range4g,
+            0x02 => AccRange::Range8g,
+            0x03 => AccRange::Range16g,
+            _ => panic!(), // TODO
+        }
+    }
+}
