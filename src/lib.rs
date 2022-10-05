@@ -3,8 +3,9 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxConf, AuxData, AxisData, Data, Error, ErrorReg, Event, GyrConf, GyrRange,
-    InternalStatus, InterruptStatus, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    AccConf, AccRange, AuxConf, AuxData, AxisData, Data, Error, ErrorReg, Event, FifoDowns,
+    GyrConf, GyrRange, InternalStatus, InterruptStatus, Status, WristGestureActivity,
+    FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -246,6 +247,19 @@ where
     pub fn set_aux_conf(&mut self, aux_conf: AuxConf) -> Result<(), Error<CommE, CsE>> {
         let reg = aux_conf.to_reg();
         self.iface.write_reg(Registers::AUX_CONF, reg)?;
+        Ok(())
+    }
+
+    /// Get the fifo downsampling configuration.
+    pub fn get_fifo_downs(&mut self) -> Result<FifoDowns, Error<CommE, CsE>> {
+        let fifo_downs = self.iface.read_reg(Registers::FIFO_DOWNS)?;
+        Ok(FifoDowns::from_reg(fifo_downs))
+    }
+
+    /// Set the fifo downsampling configuration.
+    pub fn set_fifo_downs(&mut self, fifo_downs: FifoDowns) -> Result<(), Error<CommE, CsE>> {
+        let reg = fifo_downs.to_reg();
+        self.iface.write_reg(Registers::FIFO_DOWNS, reg)?;
         Ok(())
     }
 }

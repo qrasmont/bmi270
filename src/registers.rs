@@ -21,4 +21,5 @@ impl Registers {
     pub const GYR_CONF: u8 = 0x42;
     pub const GYR_RANGE: u8 = 0x43;
     pub const AUX_CONF: u8 = 0x44;
+    pub const FIFO_DOWNS: u8 = 0x45;
 }

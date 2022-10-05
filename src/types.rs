@@ -680,3 +680,57 @@ impl AuxConf {
         odr | offset << 4
     }
 }
+
+pub struct FifoDownsMask;
+impl FifoDownsMask {
+    pub const GYR_FIFO_DOWNS: u8 = 0b0000_0111;
+    pub const GYR_FIFO_FILT_DATA: u8 = 1 << 3;
+    pub const ACC_FIFO_DOWNS: u8 = 0b0111_0000;
+    pub const ACC_FIFO_FILT_DATA: u8 = 1 << 7;
+}
+
+/// Select filtered or unfiltered fifo data.
+#[repr(u8)]
+pub enum FilterData {
+    Unfiltered = 0x00,
+    Filtered = 0x01,
+}
+/// Fifo downsampling configuration.
+pub struct FifoDowns {
+    /// Downsampling for the gyroscope.
+    pub gyr_downs: u8,
+    /// Select filtered or unfiltered gyroscope fifo data.
+    pub gyr_filt_data: FilterData,
+    /// Downsampling for the accelerometer.
+    pub acc_downs: u8,
+    /// Select filtered or unfiltered accelerometer fifo data.
+    pub acc_filt_data: FilterData,
+}
+
+impl FifoDowns {
+    pub fn from_reg(reg: u8) -> FifoDowns {
+        FifoDowns {
+            gyr_downs: reg & FifoDownsMask::GYR_FIFO_DOWNS,
+            gyr_filt_data: match (reg & FifoDownsMask::GYR_FIFO_FILT_DATA) >> 3 {
+                0x00 => FilterData::Unfiltered,
+                0x01 => FilterData::Filtered,
+                _ => panic!(), // TODO
+            },
+            acc_downs: (reg & FifoDownsMask::ACC_FIFO_DOWNS) >> 4,
+            acc_filt_data: match (reg & FifoDownsMask::ACC_FIFO_FILT_DATA) >> 7 {
+                0x00 => FilterData::Unfiltered,
+                0x01 => FilterData::Filtered,
+                _ => panic!(), // TODO
+            },
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let gyr_downs = self.gyr_downs;
+        let gyr_filt_data = self.gyr_filt_data as u8;
+        let acc_downs = self.acc_downs;
+        let acc_filt_data = self.acc_filt_data as u8;
+
+        gyr_downs | gyr_filt_data << 3 | acc_downs << 4 | acc_filt_data << 7
+    }
+}
