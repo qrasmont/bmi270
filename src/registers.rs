@@ -23,4 +23,5 @@ impl Registers {
     pub const AUX_CONF: u8 = 0x44;
     pub const FIFO_DOWNS: u8 = 0x45;
     pub const FIFO_WTM_0: u8 = 0x46;
+    pub const FIFO_CONFIG_0: u8 = 0x48;
 }

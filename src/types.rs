@@ -695,6 +695,7 @@ pub enum FilterData {
     Unfiltered = 0x00,
     Filtered = 0x01,
 }
+
 /// Fifo downsampling configuration.
 pub struct FifoDowns {
     /// Downsampling for the gyroscope.
@@ -732,5 +733,98 @@ impl FifoDowns {
         let acc_filt_data = self.acc_filt_data as u8;
 
         gyr_downs | gyr_filt_data << 3 | acc_downs << 4 | acc_filt_data << 7
+    }
+}
+
+pub struct FifoConfig0Mask;
+impl FifoConfig0Mask {
+    pub const STOP_ON_FULL: u8 = 1;
+    pub const TIME_EN: u8 = 1 << 1;
+}
+
+pub struct FifoConfig1Mask;
+impl FifoConfig1Mask {
+    pub const TAG_INT1_EN: u8 = 0b000_0011;
+    pub const TAG_INT2_EN: u8 = 0b000_1100;
+    pub const HEADER_EN: u8 = 1 << 4;
+    pub const AUX_EN: u8 = 1 << 5;
+    pub const ACC_EN: u8 = 1 << 6;
+    pub const GYR_EN: u8 = 1 << 7;
+}
+
+/// Fifo interrupt tag enable.
+#[repr(u8)]
+pub enum FifoTagIntEnable {
+    IntEdge = 0x00,
+    IntLevel = 0x01,
+    AccSat = 0x02,
+    GyrSat = 0x03,
+}
+
+/// Fifo configuration.
+pub struct FifoConf {
+    /// Stop wriing samples into the fifo when it is full.
+    pub stop_on_full: bool,
+    /// Return the sensor time frame after the last valid data frame.
+    pub time_enable: bool,
+    /// Interrupt 1 tag enable.
+    pub tag_int1_en: FifoTagIntEnable,
+    /// Interrupt 2 tag enable.
+    pub tag_int2_en: FifoTagIntEnable,
+    /// Fifo frame header enable.
+    pub header_enable: bool,
+    /// Store auxiliary sensor data in the fifo
+    pub aux_enable: bool,
+    /// Store accelerometer data in the fifo
+    pub acc_enable: bool,
+    /// Store gyroscope data in the fifo
+    pub gyr_enable: bool,
+}
+
+impl FifoConf {
+    pub fn from_regs(reg_0: u8, reg_1: u8) -> FifoConf {
+        FifoConf {
+            stop_on_full: (reg_0 & FifoConfig0Mask::STOP_ON_FULL) != 0,
+            time_enable: (reg_0 & FifoConfig0Mask::TIME_EN) != 0,
+            tag_int1_en: match reg_1 & FifoConfig1Mask::TAG_INT1_EN {
+                0x00 => FifoTagIntEnable::IntEdge,
+                0x01 => FifoTagIntEnable::IntLevel,
+                0x02 => FifoTagIntEnable::AccSat,
+                0x03 => FifoTagIntEnable::GyrSat,
+                _ => panic!(), // TODO
+            },
+            tag_int2_en: match (reg_1 & FifoConfig1Mask::TAG_INT2_EN) >> 2 {
+                0x00 => FifoTagIntEnable::IntEdge,
+                0x01 => FifoTagIntEnable::IntLevel,
+                0x02 => FifoTagIntEnable::AccSat,
+                0x03 => FifoTagIntEnable::GyrSat,
+                _ => panic!(), // TODO
+            },
+            header_enable: (reg_1 & FifoConfig1Mask::HEADER_EN) >> 4 != 0,
+            aux_enable: (reg_1 & FifoConfig1Mask::AUX_EN) >> 5 != 0,
+            acc_enable: (reg_1 & FifoConfig1Mask::ACC_EN) >> 6 != 0,
+            gyr_enable: (reg_1 & FifoConfig1Mask::GYR_EN) >> 7 != 0,
+        }
+    }
+
+    pub fn to_regs(self) -> (u8, u8) {
+        let stop_on_full: u8 = if self.stop_on_full { 0x01 } else { 0x00 };
+        let time_enable: u8 = if self.time_enable { 0x01 } else { 0x00 };
+        let tag_int1_en = self.tag_int1_en as u8;
+        let tag_int2_en = self.tag_int2_en as u8;
+        let header_enable = if self.header_enable { 0x01 } else { 0x00 };
+        let aux_enable: u8 = if self.aux_enable { 0x01 } else { 0x00 };
+        let acc_enable: u8 = if self.acc_enable { 0x01 } else { 0x00 };
+        let gyr_enable: u8 = if self.gyr_enable { 0x01 } else { 0x00 };
+
+        (
+            stop_on_full | time_enable << 1,
+            tag_int1_en
+                | tag_int2_en << 2
+                | header_enable << 4
+                | aux_enable << 5
+                | acc_enable << 6
+                | gyr_enable << 7,
+        )
     }
 }

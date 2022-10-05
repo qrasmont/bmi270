@@ -3,8 +3,8 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxConf, AuxData, AxisData, Data, Error, ErrorReg, Event, FifoDowns,
-    GyrConf, GyrRange, InternalStatus, InterruptStatus, Status, WristGestureActivity,
+    AccConf, AccRange, AuxConf, AuxData, AxisData, Data, Error, ErrorReg, Event, FifoConf,
+    FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Status, WristGestureActivity,
     FIFO_LENGTH_1_MASK,
 };
 
@@ -275,6 +275,21 @@ where
         let reg_0 = wtm as u8;
         let reg_1 = (wtm >> 8) as u8;
         let mut payload = [Registers::FIFO_WTM_0, reg_0, reg_1];
+        self.iface.write(&mut payload)?;
+        Ok(())
+    }
+
+    /// Get the fifo configuration.
+    pub fn get_fifo_conf(&mut self) -> Result<FifoConf, Error<CommE, CsE>> {
+        let mut payload = [Registers::FIFO_CONFIG_0, 0, 0];
+        self.iface.read(&mut payload)?;
+        Ok(FifoConf::from_regs(payload[1], payload[2]))
+    }
+
+    /// Set the fifo configuration.
+    pub fn set_fifo_conf(&mut self, fifo_conf: FifoConf) -> Result<(), Error<CommE, CsE>> {
+        let (reg_0, reg_1) = fifo_conf.to_regs();
+        let mut payload = [Registers::FIFO_CONFIG_0, reg_0, reg_1];
         self.iface.write(&mut payload)?;
         Ok(())
     }
