@@ -4,8 +4,8 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AxisData, Data, Error, ErrorReg, Event, FifoConf,
-    FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Status, WristGestureActivity,
-    FIFO_LENGTH_1_MASK,
+    FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Saturation, Status,
+    WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -292,6 +292,12 @@ where
         let mut payload = [Registers::FIFO_CONFIG_0, reg_0, reg_1];
         self.iface.write(&mut payload)?;
         Ok(())
+    }
+
+    /// Get the current saturation.
+    pub fn get_saturation(&mut self) -> Result<Saturation, Error<CommE, CsE>> {
+        let saturation = self.iface.read_reg(Registers::SATURATION)?;
+        Ok(Saturation::from_reg(saturation))
     }
 }
 

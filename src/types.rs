@@ -828,3 +828,43 @@ impl FifoConf {
         )
     }
 }
+
+pub struct SaturationMask;
+impl SaturationMask {
+    pub const ACC_X: u8 = 1;
+    pub const ACC_Y: u8 = 1 << 1;
+    pub const ACC_Z: u8 = 1 << 2;
+    pub const GYR_X: u8 = 1 << 3;
+    pub const GYR_Y: u8 = 1 << 4;
+    pub const GYR_Z: u8 = 1 << 5;
+}
+
+/// Notifies if the current values have been saturated. Synchronously update with the data
+/// registers.
+pub struct Saturation {
+    /// Accelerometer x axis is saturated.
+    pub acc_x: bool,
+    /// Accelerometer y axis is saturated.
+    pub acc_y: bool,
+    /// Accelerometer z axis is saturated.
+    pub acc_z: bool,
+    /// Gyroscope x axis is saturated.
+    pub gyr_x: bool,
+    /// Gyroscope y axis is saturated.
+    pub gyr_y: bool,
+    /// Gyroscope z axis is saturated.
+    pub gyr_z: bool,
+}
+
+impl Saturation {
+    pub fn from_reg(reg: u8) -> Saturation {
+        Saturation {
+            acc_x: reg & SaturationMask::ACC_X != 0,
+            acc_y: (reg & SaturationMask::ACC_Y) >> 1 != 0,
+            acc_z: (reg & SaturationMask::ACC_Z) >> 2 != 0,
+            gyr_x: (reg & SaturationMask::GYR_X) >> 3 != 0,
+            gyr_y: (reg & SaturationMask::GYR_Y) >> 4 != 0,
+            gyr_z: (reg & SaturationMask::GYR_Z) >> 5 != 0,
+        }
+    }
+}
