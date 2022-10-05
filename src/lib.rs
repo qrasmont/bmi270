@@ -3,8 +3,8 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxConf, AuxData, AxisData, Data, Error, ErrorReg, Event, FifoConf,
-    FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Saturation, Status,
+    AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, Event,
+    FifoConf, FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Saturation, Status,
     WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
@@ -310,6 +310,19 @@ where
     pub fn set_aux_dev_id(&mut self, dev_id: u8) -> Result<(), Error<CommE, CsE>> {
         let reg = dev_id << 1;
         self.iface.write_reg(Registers::AUX_DEV_ID, reg)?;
+        Ok(())
+    }
+
+    /// Get auxiliary device interface configuration.
+    pub fn get_aux_if_conf(&mut self) -> Result<AuxIfConf, Error<CommE, CsE>> {
+        let aux_if_conf = self.iface.read_reg(Registers::AUX_IF_CONF)?;
+        Ok(AuxIfConf::from_reg(aux_if_conf))
+    }
+
+    /// Set auxiliary device interface configuration.
+    pub fn set_aux_if_conf(&mut self, aux_if_conf: AuxIfConf) -> Result<(), Error<CommE, CsE>> {
+        let reg = aux_if_conf.to_reg();
+        self.iface.write_reg(Registers::AUX_IF_CONF, reg)?;
         Ok(())
     }
 }

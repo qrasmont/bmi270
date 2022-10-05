@@ -868,3 +868,68 @@ impl Saturation {
         }
     }
 }
+
+pub struct AuxIfConfMask;
+impl AuxIfConfMask {
+    pub const AUX_RD_BURST: u8 = 0b000_0011;
+    pub const MAN_RD_BURST: u8 = 0b000_1100;
+    pub const AUX_FCU_WRITE_EN: u8 = 1 << 6;
+    pub const AUX_MANUAL_EN: u8 = 1 << 7;
+}
+
+/// Read burst.
+#[repr(u8)]
+pub enum ReadBurst {
+    /// 1 byte.
+    Burst1Byte = 0x00,
+    /// 2 bytes.
+    Burst2Byte = 0x01,
+    /// 4 bytes.
+    Burst4Byte = 0x02,
+    /// 8 bytes.
+    Burst8Byte = 0x03,
+}
+
+/// Auxiliary sensor configuration..
+pub struct AuxIfConf {
+    /// Burst data lenngth.
+    pub aux_read_burst: ReadBurst,
+    /// Manual burst data lenngth.
+    pub man_read_burst: ReadBurst,
+    /// Enables FCU write command.
+    pub aux_fcu_write_en: bool,
+    /// Switches between automatic and manual mode.
+    pub aux_manual_en: bool,
+}
+
+impl AuxIfConf {
+    pub fn from_reg(reg: u8) -> AuxIfConf {
+        AuxIfConf {
+            aux_read_burst: match reg & AuxIfConfMask::AUX_RD_BURST {
+                0x00 => ReadBurst::Burst1Byte,
+                0x01 => ReadBurst::Burst2Byte,
+                0x02 => ReadBurst::Burst4Byte,
+                0x03 => ReadBurst::Burst8Byte,
+                _ => panic!(), // TODO
+            },
+            man_read_burst: match (reg & AuxIfConfMask::MAN_RD_BURST) >> 2 {
+                0x00 => ReadBurst::Burst1Byte,
+                0x01 => ReadBurst::Burst2Byte,
+                0x02 => ReadBurst::Burst4Byte,
+                0x03 => ReadBurst::Burst8Byte,
+                _ => panic!(), // TODO
+            },
+            aux_fcu_write_en: (reg & AuxIfConfMask::AUX_FCU_WRITE_EN) >> 6 != 0,
+            aux_manual_en: (reg & AuxIfConfMask::AUX_MANUAL_EN) >> 7 != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let aux_read_burst = self.aux_read_burst as u8;
+        let man_read_burst = self.man_read_burst as u8;
+        let aux_fcu_write_en = if self.aux_fcu_write_en { 0x01 } else { 0x00 };
+        let aux_manual_en = if self.aux_manual_en { 0x01 } else { 0x00 };
+
+        aux_read_burst | man_read_burst << 2 | aux_fcu_write_en << 6 | aux_manual_en << 7
+    }
+}
