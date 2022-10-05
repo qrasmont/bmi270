@@ -25,4 +25,5 @@ impl Registers {
     pub const FIFO_WTM_0: u8 = 0x46;
     pub const FIFO_CONFIG_0: u8 = 0x48;
     pub const SATURATION: u8 = 0x4A;
+    pub const AUX_DEV_ID: u8 = 0x4B;
 }

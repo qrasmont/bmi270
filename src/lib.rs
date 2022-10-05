@@ -299,6 +299,19 @@ where
         let saturation = self.iface.read_reg(Registers::SATURATION)?;
         Ok(Saturation::from_reg(saturation))
     }
+
+    /// Get the auxiliary device id.
+    pub fn get_aux_dev_id(&mut self) -> Result<u8, Error<CommE, CsE>> {
+        let dev_id = self.iface.read_reg(Registers::AUX_DEV_ID)?;
+        Ok(dev_id >> 1)
+    }
+
+    /// Set the auxiliary device id.
+    pub fn set_aux_dev_id(&mut self, dev_id: u8) -> Result<(), Error<CommE, CsE>> {
+        let reg = dev_id << 1;
+        self.iface.write_reg(Registers::AUX_DEV_ID, reg)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {
