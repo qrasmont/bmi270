@@ -633,3 +633,50 @@ impl GyrRange {
         range | ois << 3
     }
 }
+
+pub struct AuxConfMask;
+impl AuxConfMask {
+    pub const AUX_ODR: u8 = 0b0000_1111;
+    pub const AUX_OFFSET: u8 = 0b1111_0000;
+}
+
+/// Auxiliary device configuration.
+pub struct AuxConf {
+    /// Auxiliary device Output Data Rate in Hz.
+    pub odr: Odr,
+    /// Trigger-readout offset in units of 2.5ms.
+    pub offset: u8,
+}
+
+impl AuxConf {
+    pub fn from_reg(reg: u8) -> AuxConf {
+        AuxConf {
+            odr: match reg & AuxConfMask::AUX_ODR {
+                0x01 => Odr::Odr0p78,
+                0x02 => Odr::Odr1p5,
+                0x03 => Odr::Odr3p1,
+                0x04 => Odr::Odr6p25,
+                0x05 => Odr::Odr12p5,
+                0x06 => Odr::Odr25,
+                0x07 => Odr::Odr50,
+                0x08 => Odr::Odr100,
+                0x09 => Odr::Odr200,
+                0x0A => Odr::Odr400,
+                0x0B => Odr::Odr800,
+                0x0C => Odr::Odr1k6,
+                0x0D => Odr::Odr3k2,
+                0x0E => Odr::Odr6k4,
+                0x0F => Odr::Odr12k8,
+                _ => panic!(), // TODO
+            },
+            offset: (reg & AuxConfMask::AUX_OFFSET) >> 4,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let odr = self.odr as u8;
+        let offset = self.offset;
+
+        odr | offset << 4
+    }
+}

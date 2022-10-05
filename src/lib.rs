@@ -3,7 +3,7 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxData, AxisData, Data, Error, ErrorReg, Event, GyrConf, GyrRange,
+    AccConf, AccRange, AuxConf, AuxData, AxisData, Data, Error, ErrorReg, Event, GyrConf, GyrRange,
     InternalStatus, InterruptStatus, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
@@ -233,6 +233,19 @@ where
     pub fn set_gyr_range(&mut self, gyr_range: GyrRange) -> Result<(), Error<CommE, CsE>> {
         let reg = gyr_range.to_reg();
         self.iface.write_reg(Registers::GYR_RANGE, reg)?;
+        Ok(())
+    }
+
+    /// Get the Auxiliary device configuration.
+    pub fn get_aux_conf(&mut self) -> Result<AuxConf, Error<CommE, CsE>> {
+        let aux_conf = self.iface.read_reg(Registers::AUX_CONF)?;
+        Ok(AuxConf::from_reg(aux_conf))
+    }
+
+    /// Set the Auxiliary device configuration.
+    pub fn set_aux_conf(&mut self, aux_conf: AuxConf) -> Result<(), Error<CommE, CsE>> {
+        let reg = aux_conf.to_reg();
+        self.iface.write_reg(Registers::AUX_CONF, reg)?;
         Ok(())
     }
 }

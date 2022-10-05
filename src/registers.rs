@@ -20,4 +20,5 @@ impl Registers {
     pub const ACC_RANGE: u8 = 0x41;
     pub const GYR_CONF: u8 = 0x42;
     pub const GYR_RANGE: u8 = 0x43;
+    pub const AUX_CONF: u8 = 0x44;
 }
