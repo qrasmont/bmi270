@@ -262,6 +262,22 @@ where
         self.iface.write_reg(Registers::FIFO_DOWNS, reg)?;
         Ok(())
     }
+
+    /// Get the fifo watermark level.
+    pub fn get_fifo_wtm(&mut self) -> Result<u16, Error<CommE, CsE>> {
+        let mut payload = [Registers::FIFO_WTM_0, 0, 0];
+        self.iface.read(&mut payload)?;
+        Ok(u16::from(payload[1]) | u16::from(payload[2]) << 8)
+    }
+
+    /// Set the fifo watermark level. Interrupt will trigger when the fifo reaches wtm * 256 bytes.
+    pub fn set_fifo_wtm(&mut self, wtm: u16) -> Result<(), Error<CommE, CsE>> {
+        let reg_0 = wtm as u8;
+        let reg_1 = (wtm >> 8) as u8;
+        let mut payload = [Registers::FIFO_WTM_0, reg_0, reg_1];
+        self.iface.write(&mut payload)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {
