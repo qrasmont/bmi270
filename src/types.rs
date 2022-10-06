@@ -1215,3 +1215,37 @@ impl InternalError {
         }
     }
 }
+
+pub struct AuxIfTrimMask;
+impl AuxIfTrimMask {
+    pub const PUPSEL: u8 = 0b0000_0011;
+}
+
+/// Pull up configuration.
+#[repr(u8)]
+pub enum PullUpConf {
+    /// Pull up off
+    PullUpOff = 0x00,
+    /// Pull up 40k.
+    PullUp40K = 0x01,
+    /// Pull up 10k.
+    PullUp10K = 0x02,
+    /// Pull up 2k.
+    PullUp2K = 0x03,
+}
+
+impl PullUpConf {
+    pub fn from_reg(reg: u8) -> PullUpConf {
+        match reg & AuxIfTrimMask::PUPSEL {
+            0x00 => PullUpConf::PullUpOff,
+            0x01 => PullUpConf::PullUp40K,
+            0x02 => PullUpConf::PullUp10K,
+            0x03 => PullUpConf::PullUp2K,
+            _ => panic!(), // TODO
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        self as u8
+    }
+}

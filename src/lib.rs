@@ -5,8 +5,8 @@ use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
     Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, IntMapData, IntMapFeat,
-    InternalError, InternalStatus, InterruptStatus, Saturation, Status, WristGestureActivity,
-    FIFO_LENGTH_1_MASK,
+    InternalError, InternalStatus, InterruptStatus, PullUpConf, Saturation, Status,
+    WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -504,6 +504,19 @@ where
     pub fn get_internal_error(&mut self) -> Result<InternalError, Error<CommE, CsE>> {
         let internal_error = self.iface.read_reg(Registers::INTERNAL_ERROR)?;
         Ok(InternalError::from_reg(internal_error))
+    }
+
+    /// Get ASDA pull up.
+    pub fn get_asda_pullup(&mut self) -> Result<PullUpConf, Error<CommE, CsE>> {
+        let aux_if_trim = self.iface.read_reg(Registers::AUX_IF_TRIM)?;
+        Ok(PullUpConf::from_reg(aux_if_trim))
+    }
+
+    /// Set ASDA pull up.
+    pub fn set_asda_pullup(&mut self, pull_up_conf: PullUpConf) -> Result<(), Error<CommE, CsE>> {
+        self.iface
+            .write_reg(Registers::AUX_IF_TRIM, pull_up_conf.to_reg())?;
+        Ok(())
     }
 }
 

@@ -41,4 +41,5 @@ impl Registers {
     pub const INIT_ADDR_0: u8 = 0x5B;
     pub const INIT_DATA: u8 = 0x5E;
     pub const INTERNAL_ERROR: u8 = 0x5F;
+    pub const AUX_IF_TRIM: u8 = 0x68;
 }
