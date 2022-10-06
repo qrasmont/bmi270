@@ -965,3 +965,65 @@ impl ErrorRegMsk {
         fatal_err | internal_err << 1 | fifo_err << 6 | aux_err << 7
     }
 }
+
+pub struct IntIoCtrlMask;
+impl IntIoCtrlMask {
+    pub const LEVEL: u8 = 1 << 1;
+    pub const OD: u8 = 1 << 2;
+    pub const OUTPUT_EN: u8 = 1 << 3;
+    pub const INPUT_EN: u8 = 1 << 4;
+}
+
+/// Output level.
+#[repr(u8)]
+pub enum OutputLevel {
+    /// Active low.
+    ActiveLow = 0x00,
+    /// Active high.
+    ActiveHigh = 0x01,
+}
+
+/// Output behavior.
+#[repr(u8)]
+pub enum OutputBehavior {
+    /// Active low.
+    PushPull = 0x00,
+    /// Active high.
+    OpenDrain = 0x01,
+}
+
+/// Configuration of the electrical behavior of an interrupt.
+pub struct IntIoCtrl {
+    pub level: OutputLevel,
+    pub od: OutputBehavior,
+    pub ouput_en: bool,
+    pub input_en: bool,
+}
+
+impl IntIoCtrl {
+    pub fn from_reg(reg: u8) -> IntIoCtrl {
+        IntIoCtrl {
+            level: match (reg & IntIoCtrlMask::LEVEL) >> 1 {
+                0x00 => OutputLevel::ActiveLow,
+                0x01 => OutputLevel::ActiveHigh,
+                _ => panic!(), // TODO
+            },
+            od: match (reg & IntIoCtrlMask::OD) >> 2 {
+                0x00 => OutputBehavior::PushPull,
+                0x01 => OutputBehavior::OpenDrain,
+                _ => panic!(), // TODO
+            },
+            ouput_en: (reg & IntIoCtrlMask::OUTPUT_EN) != 0,
+            input_en: (reg & IntIoCtrlMask::INPUT_EN) != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let level = self.level as u8;
+        let od = self.od as u8;
+        let output_en = if self.input_en { 0x01 } else { 0x00 };
+        let input_en = if self.ouput_en { 0x01 } else { 0x00 };
+
+        level << 1 | od << 2 | output_en << 3 | input_en << 4
+    }
+}

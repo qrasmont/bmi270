@@ -4,8 +4,8 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
-    Event, FifoConf, FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Saturation,
-    Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, InternalStatus, InterruptStatus,
+    Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -372,6 +372,32 @@ where
     pub fn set_err_reg_msk(&mut self, err_reg_msk: ErrorRegMsk) -> Result<(), Error<CommE, CsE>> {
         let reg = err_reg_msk.to_reg();
         self.iface.write_reg(Registers::ERR_REG_MSK, reg)?;
+        Ok(())
+    }
+
+    /// Get interrupt 1 io control.
+    pub fn get_int1_io_ctrl(&mut self) -> Result<IntIoCtrl, Error<CommE, CsE>> {
+        let int1_io_ctrl = self.iface.read_reg(Registers::INT1_IO_CTRL)?;
+        Ok(IntIoCtrl::from_reg(int1_io_ctrl))
+    }
+
+    /// Set interrupt 1 io control.
+    pub fn set_int1_io_ctrl(&mut self, int1_io_ctrl: IntIoCtrl) -> Result<(), Error<CommE, CsE>> {
+        let reg = int1_io_ctrl.to_reg();
+        self.iface.write_reg(Registers::INT1_IO_CTRL, reg)?;
+        Ok(())
+    }
+
+    /// Get interrupt 2 io control.
+    pub fn get_int2_io_ctrl(&mut self) -> Result<IntIoCtrl, Error<CommE, CsE>> {
+        let int2_io_ctrl = self.iface.read_reg(Registers::INT2_IO_CTRL)?;
+        Ok(IntIoCtrl::from_reg(int2_io_ctrl))
+    }
+
+    /// Set interrupt 2 io control.
+    pub fn set_int2_io_ctrl(&mut self, int2_io_ctrl: IntIoCtrl) -> Result<(), Error<CommE, CsE>> {
+        let reg = int2_io_ctrl.to_reg();
+        self.iface.write_reg(Registers::INT2_IO_CTRL, reg)?;
         Ok(())
     }
 }
