@@ -1116,3 +1116,75 @@ impl IntMapFeat {
             | any_motion_out << 6
     }
 }
+
+pub struct IntMapDataMask;
+impl IntMapDataMask {
+    pub const FFULL_INT1: u8 = 1;
+    pub const FWM_INT1: u8 = 1 << 1;
+    pub const DRDY_INT1: u8 = 1 << 2;
+    pub const ERR_INT1: u8 = 1 << 3;
+    pub const FFULL_INT2: u8 = 1 << 4;
+    pub const FWM_INT2: u8 = 1 << 5;
+    pub const DRDY_INT2: u8 = 1 << 6;
+    pub const ERR_INT2: u8 = 1 << 7;
+}
+
+/// Data interrupt mapping.
+pub struct MapData {
+    // Map fifo full interrupt.
+    pub ffull: bool,
+    // Map fifo watermark interrupt.
+    pub fwm: bool,
+    // Map data ready interrupt.
+    pub drdy: bool,
+    /// Map error interrupt.
+    pub err: bool,
+}
+
+/// Data interrupt for int1 and int2.
+pub struct IntMapData {
+    /// Data interrupt mapping for int1.
+    pub int1: MapData,
+    /// Data interrupt mapping for int2.
+    pub int2: MapData,
+}
+
+impl IntMapData {
+    pub fn from_reg(reg: u8) -> IntMapData {
+        IntMapData {
+            int1: MapData {
+                ffull: (reg & IntMapDataMask::FFULL_INT1) != 0,
+                fwm: (reg & IntMapDataMask::FWM_INT1) != 0,
+                drdy: (reg & IntMapDataMask::DRDY_INT1) != 0,
+                err: (reg & IntMapDataMask::ERR_INT1) != 0,
+            },
+            int2: MapData {
+                ffull: (reg & IntMapDataMask::FFULL_INT2) != 0,
+                fwm: (reg & IntMapDataMask::FWM_INT2) != 0,
+                drdy: (reg & IntMapDataMask::DRDY_INT2) != 0,
+                err: (reg & IntMapDataMask::ERR_INT2) != 0,
+            },
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let ffull_int1 = if self.int1.ffull { 0x01 } else { 0x00 };
+        let fwm_int1 = if self.int1.fwm { 0x01 } else { 0x00 };
+        let drdy_int1 = if self.int1.drdy { 0x01 } else { 0x00 };
+        let err_int1 = if self.int1.err { 0x01 } else { 0x00 };
+
+        let ffull_int2 = if self.int2.ffull { 0x01 } else { 0x00 };
+        let fwm_int2 = if self.int2.fwm { 0x01 } else { 0x00 };
+        let drdy_int2 = if self.int2.drdy { 0x01 } else { 0x00 };
+        let err_int2 = if self.int2.err { 0x01 } else { 0x00 };
+
+        ffull_int1
+            | fwm_int1 << 1
+            | drdy_int1 << 2
+            | err_int1 << 3
+            | ffull_int2 << 4
+            | fwm_int2 << 5
+            | drdy_int2 << 6
+            | err_int2 << 7
+    }
+}

@@ -4,8 +4,8 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
-    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, IntMapFeat, InternalStatus,
-    InterruptStatus, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, IntMapData, IntMapFeat,
+    InternalStatus, InterruptStatus, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -443,6 +443,19 @@ where
     ) -> Result<(), Error<CommE, CsE>> {
         let reg = int2_map_feat.to_reg();
         self.iface.write_reg(Registers::INT2_MAP_FEAT, reg)?;
+        Ok(())
+    }
+
+    /// Get interrupt data map.
+    pub fn get_int_map_data(&mut self) -> Result<IntMapData, Error<CommE, CsE>> {
+        let int_map_data = self.iface.read_reg(Registers::INT_MAP_DATA)?;
+        Ok(IntMapData::from_reg(int_map_data))
+    }
+
+    /// Set interrupt data map.
+    pub fn set_int_map_data(&mut self, int_map_data: IntMapData) -> Result<(), Error<CommE, CsE>> {
+        let reg = int_map_data.to_reg();
+        self.iface.write_reg(Registers::INT_LATCH, reg)?;
         Ok(())
     }
 }
