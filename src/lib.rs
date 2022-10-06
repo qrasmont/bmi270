@@ -4,8 +4,8 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
-    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, InternalStatus, InterruptStatus,
-    Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, InternalStatus,
+    InterruptStatus, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -398,6 +398,19 @@ where
     pub fn set_int2_io_ctrl(&mut self, int2_io_ctrl: IntIoCtrl) -> Result<(), Error<CommE, CsE>> {
         let reg = int2_io_ctrl.to_reg();
         self.iface.write_reg(Registers::INT2_IO_CTRL, reg)?;
+        Ok(())
+    }
+
+    /// Get interrupt latched mode.
+    pub fn get_int_latch(&mut self) -> Result<IntLatch, Error<CommE, CsE>> {
+        let int_latch = self.iface.read_reg(Registers::INT_LATCH)?;
+        Ok(IntLatch::from_reg(int_latch))
+    }
+
+    /// Set interrupt latched mode.
+    pub fn set_int_latch(&mut self, int_latch: IntLatch) -> Result<(), Error<CommE, CsE>> {
+        self.iface
+            .write_reg(Registers::INT_LATCH, int_latch as u8)?;
         Ok(())
     }
 }

@@ -1027,3 +1027,27 @@ impl IntIoCtrl {
         level << 1 | od << 2 | output_en << 3 | input_en << 4
     }
 }
+
+pub struct IntLatchMask;
+impl IntLatchMask {
+    pub const LATCH: u8 = 1;
+}
+
+/// Latched mode for the interrupt.
+#[repr(u8)]
+pub enum IntLatch {
+    /// Non latched.
+    None = 0x00,
+    /// Permanenet latched.
+    Permanent = 0x01,
+}
+
+impl IntLatch {
+    pub fn from_reg(reg: u8) -> IntLatch {
+        match reg & IntLatchMask::LATCH {
+            0x00 => IntLatch::None,
+            0x01 => IntLatch::Permanent,
+            _ => panic!(), // TODO
+        }
+    }
+}
