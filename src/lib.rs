@@ -337,6 +337,18 @@ where
         self.iface.write_reg(Registers::AUX_RD_ADDR, aux_rd_addr)?;
         Ok(())
     }
+
+    /// Get auxiliary device write address.
+    pub fn get_aux_wr_addr(&mut self) -> Result<u8, Error<CommE, CsE>> {
+        let aux_wr_addr = self.iface.read_reg(Registers::AUX_WR_ADDR)?;
+        Ok(aux_wr_addr)
+    }
+
+    /// Set auxiliary device write address.
+    pub fn set_aux_wr_addr(&mut self, aux_wr_addr: u8) -> Result<(), Error<CommE, CsE>> {
+        self.iface.write_reg(Registers::AUX_WR_ADDR, aux_wr_addr)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {

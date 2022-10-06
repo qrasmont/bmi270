@@ -28,4 +28,5 @@ impl Registers {
     pub const AUX_DEV_ID: u8 = 0x4B;
     pub const AUX_IF_CONF: u8 = 0x4C;
     pub const AUX_RD_ADDR: u8 = 0x4D;
+    pub const AUX_WR_ADDR: u8 = 0x4E;
 }
