@@ -470,6 +470,22 @@ where
         self.iface.write_reg(Registers::INIT_CTRL, init_ctrl)?;
         Ok(())
     }
+
+    /// Get init address.
+    pub fn get_init_addr(&mut self) -> Result<u16, Error<CommE, CsE>> {
+        let mut payload = [Registers::INIT_ADDR_0, 0, 0];
+        self.iface.read(&mut payload)?;
+        Ok(u16::from(payload[1] & 0b0000_1111) | u16::from(payload[2]) << 4)
+    }
+
+    /// Set init address.
+    pub fn set_init_addr(&mut self, init_addr: u16) -> Result<(), Error<CommE, CsE>> {
+        let reg_0 = init_addr as u8 & 0b0000_1111;
+        let reg_1 = (init_addr >> 4) as u8;
+        let mut payload = [Registers::INIT_ADDR_0, reg_0, reg_1];
+        self.iface.write(&mut payload)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {
