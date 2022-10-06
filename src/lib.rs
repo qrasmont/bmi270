@@ -4,7 +4,7 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
-    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, InternalStatus,
+    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, IntMapFeat, InternalStatus,
     InterruptStatus, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
@@ -411,6 +411,38 @@ where
     pub fn set_int_latch(&mut self, int_latch: IntLatch) -> Result<(), Error<CommE, CsE>> {
         self.iface
             .write_reg(Registers::INT_LATCH, int_latch as u8)?;
+        Ok(())
+    }
+
+    /// Get interrupt 1 feature mapping.
+    pub fn get_int1_map_feat(&mut self) -> Result<IntMapFeat, Error<CommE, CsE>> {
+        let int1_map_feat = self.iface.read_reg(Registers::INT1_MAP_FEAT)?;
+        Ok(IntMapFeat::from_reg(int1_map_feat))
+    }
+
+    /// Set interrupt 1 feature mapping.
+    pub fn set_int1_map_feat(
+        &mut self,
+        int1_map_feat: IntMapFeat,
+    ) -> Result<(), Error<CommE, CsE>> {
+        let reg = int1_map_feat.to_reg();
+        self.iface.write_reg(Registers::INT1_MAP_FEAT, reg)?;
+        Ok(())
+    }
+
+    /// Get interrupt 2 feature mapping.
+    pub fn get_int2_map_feat(&mut self) -> Result<IntMapFeat, Error<CommE, CsE>> {
+        let int2_map_feat = self.iface.read_reg(Registers::INT2_MAP_FEAT)?;
+        Ok(IntMapFeat::from_reg(int2_map_feat))
+    }
+
+    /// Set interrupt 2 feature mapping.
+    pub fn set_int2_map_feat(
+        &mut self,
+        int2_map_feat: IntMapFeat,
+    ) -> Result<(), Error<CommE, CsE>> {
+        let reg = int2_map_feat.to_reg();
+        self.iface.write_reg(Registers::INT2_MAP_FEAT, reg)?;
         Ok(())
     }
 }

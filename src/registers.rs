@@ -34,4 +34,6 @@ impl Registers {
     pub const INT1_IO_CTRL: u8 = 0x53;
     pub const INT2_IO_CTRL: u8 = 0x54;
     pub const INT_LATCH: u8 = 0x55;
+    pub const INT1_MAP_FEAT: u8 = 0x56;
+    pub const INT2_MAP_FEAT: u8 = 0x57;
 }

@@ -1051,3 +1051,68 @@ impl IntLatch {
         }
     }
 }
+
+pub struct IntMapFeatMask;
+impl IntMapFeatMask {
+    pub const SIG_MOTION_OUT: u8 = 1;
+    pub const STEP_COUNTER_OUT: u8 = 1 << 1;
+    pub const ACTIVITY_OUT: u8 = 1 << 2;
+    pub const WRIST_WEAR_WAKEUP_OUT: u8 = 1 << 3;
+    pub const WRIST_GESTURE_OUT: u8 = 1 << 4;
+    pub const NO_MOTION_OUT: u8 = 1 << 5;
+    pub const ANY_MOTION_OUT: u8 = 1 << 6;
+}
+
+/// Interrupt feature mapping.
+pub struct IntMapFeat {
+    /// Sigmotion output.
+    pub sig_motion_out: bool,
+    /// Step-counter watermark or Step-detector output.
+    pub step_counter_out: bool,
+    /// Step activity output.
+    pub activity_out: bool,
+    /// Wrist wear wakeup output.
+    pub wrist_wear_wakeup_out: bool,
+    /// Wrist gesture output.
+    pub wrist_gesture_out: bool,
+    /// No motion detection output.
+    pub no_motion_out: bool,
+    /// Any motion detection output.
+    pub any_motion_out: bool,
+}
+
+impl IntMapFeat {
+    pub fn from_reg(reg: u8) -> IntMapFeat {
+        IntMapFeat {
+            sig_motion_out: (reg & IntMapFeatMask::SIG_MOTION_OUT) != 0,
+            step_counter_out: (reg & IntMapFeatMask::STEP_COUNTER_OUT) != 0,
+            activity_out: (reg & IntMapFeatMask::ACTIVITY_OUT) != 0,
+            wrist_wear_wakeup_out: (reg & IntMapFeatMask::WRIST_WEAR_WAKEUP_OUT) != 0,
+            wrist_gesture_out: (reg & IntMapFeatMask::WRIST_GESTURE_OUT) != 0,
+            no_motion_out: (reg & IntMapFeatMask::NO_MOTION_OUT) != 0,
+            any_motion_out: (reg & IntMapFeatMask::ANY_MOTION_OUT) != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let sig_motion_out = if self.sig_motion_out { 0x01 } else { 0x00 };
+        let step_counter_out = if self.step_counter_out { 0x01 } else { 0x00 };
+        let activity_out = if self.activity_out { 0x01 } else { 0x00 };
+        let wrist_wear_wakeup_out = if self.wrist_wear_wakeup_out {
+            0x01
+        } else {
+            0x00
+        };
+        let wrist_gesture_out = if self.wrist_gesture_out { 0x01 } else { 0x00 };
+        let no_motion_out = if self.no_motion_out { 0x01 } else { 0x00 };
+        let any_motion_out = if self.any_motion_out { 0x01 } else { 0x00 };
+
+        sig_motion_out
+            | step_counter_out << 1
+            | activity_out << 2
+            | wrist_wear_wakeup_out << 3
+            | wrist_gesture_out << 4
+            | no_motion_out << 5
+            | any_motion_out << 6
+    }
+}
