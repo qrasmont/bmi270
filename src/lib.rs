@@ -458,6 +458,18 @@ where
         self.iface.write_reg(Registers::INT_LATCH, reg)?;
         Ok(())
     }
+
+    /// Get initialization control register.
+    pub fn get_init_ctrl(&mut self) -> Result<u8, Error<CommE, CsE>> {
+        let init_ctrl = self.iface.read_reg(Registers::INIT_CTRL)?;
+        Ok(init_ctrl)
+    }
+
+    /// Set initialization control register (start initialization).
+    pub fn set_init_ctrl(&mut self, init_ctrl: u8) -> Result<(), Error<CommE, CsE>> {
+        self.iface.write_reg(Registers::INIT_CTRL, init_ctrl)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {
