@@ -27,4 +27,5 @@ impl Registers {
     pub const SATURATION: u8 = 0x4A;
     pub const AUX_DEV_ID: u8 = 0x4B;
     pub const AUX_IF_CONF: u8 = 0x4C;
+    pub const AUX_RD_ADDR: u8 = 0x4D;
 }
