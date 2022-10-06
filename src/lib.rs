@@ -5,7 +5,8 @@ use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
     Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, IntMapData, IntMapFeat,
-    InternalStatus, InterruptStatus, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    InternalError, InternalStatus, InterruptStatus, Saturation, Status, WristGestureActivity,
+    FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -497,6 +498,12 @@ where
     pub fn set_init_data(&mut self, init_data: u8) -> Result<(), Error<CommE, CsE>> {
         self.iface.write_reg(Registers::INIT_DATA, init_data)?;
         Ok(())
+    }
+
+    /// Get the internal errors.
+    pub fn get_internal_error(&mut self) -> Result<InternalError, Error<CommE, CsE>> {
+        let internal_error = self.iface.read_reg(Registers::INTERNAL_ERROR)?;
+        Ok(InternalError::from_reg(internal_error))
     }
 }
 

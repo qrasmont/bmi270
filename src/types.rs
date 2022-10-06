@@ -1188,3 +1188,30 @@ impl IntMapData {
             | err_int2 << 7
     }
 }
+
+pub struct InternalErrorMask;
+impl InternalErrorMask {
+    pub const INT_ERR_1: u8 = 1;
+    pub const INT_ERR_2: u8 = 1 << 2;
+    pub const FEAT_ENG_DIS: u8 = 1 << 4;
+}
+
+/// Internal error flags.
+pub struct InternalError {
+    /// Long processing time, processing halted.
+    pub int_err_1: bool,
+    /// Fatal error, procesing halted.
+    pub int_err_2: bool,
+    /// Feature engine has been disabled by host during sensor operation.
+    pub feat_eng_dis: bool,
+}
+
+impl InternalError {
+    pub fn from_reg(reg: u8) -> InternalError {
+        InternalError {
+            int_err_1: (reg & InternalErrorMask::INT_ERR_1) != 0,
+            int_err_2: (reg & InternalErrorMask::INT_ERR_2) >> 2 != 0,
+            feat_eng_dis: (reg & InternalErrorMask::FEAT_ENG_DIS) >> 4 != 0,
+        }
+    }
+}
