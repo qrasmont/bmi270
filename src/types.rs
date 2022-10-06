@@ -933,3 +933,35 @@ impl AuxIfConf {
         aux_read_burst | man_read_burst << 2 | aux_fcu_write_en << 6 | aux_manual_en << 7
     }
 }
+
+/// Define which error flag will trigger the error interrupt.
+pub struct ErrorRegMsk {
+    /// Use fatal error.
+    pub fatal_err: bool,
+    /// Use internal error.
+    pub internal_err: bool,
+    /// Use fifo error.
+    pub fifo_err: bool,
+    /// Use auxiliary interface error.
+    pub aux_err: bool,
+}
+
+impl ErrorRegMsk {
+    pub fn from_reg(reg: u8) -> ErrorRegMsk {
+        ErrorRegMsk {
+            fatal_err: (reg & ErrRegMask::FATAL_ERR) != 0,
+            internal_err: (reg & ErrRegMask::INTERNAL_ERR) != 0,
+            fifo_err: (reg & ErrRegMask::FIFO_ERR) != 0,
+            aux_err: (reg & ErrRegMask::AUX_ERR) != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let fatal_err = if self.fatal_err { 0x01 } else { 0x00 };
+        let internal_err = if self.internal_err { 0b0001_1110 } else { 0x00 };
+        let fifo_err = if self.fifo_err { 0x01 } else { 0x00 };
+        let aux_err = if self.aux_err { 0x01 } else { 0x00 };
+
+        fatal_err | internal_err << 1 | fifo_err << 6 | aux_err << 7
+    }
+}

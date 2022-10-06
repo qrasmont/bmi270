@@ -3,9 +3,9 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, Event,
-    FifoConf, FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Saturation, Status,
-    WristGestureActivity, FIFO_LENGTH_1_MASK,
+    AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
+    Event, FifoConf, FifoDowns, GyrConf, GyrRange, InternalStatus, InterruptStatus, Saturation,
+    Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -359,6 +359,19 @@ where
     /// Set auxiliary device data to write.
     pub fn set_aux_wr_data(&mut self, aux_wr_data: u8) -> Result<(), Error<CommE, CsE>> {
         self.iface.write_reg(Registers::AUX_WR_DATA, aux_wr_data)?;
+        Ok(())
+    }
+
+    /// Get error register mask.
+    pub fn get_err_reg_msk(&mut self) -> Result<ErrorRegMsk, Error<CommE, CsE>> {
+        let err_reg_msk = self.iface.read_reg(Registers::ERR_REG_MSK)?;
+        Ok(ErrorRegMsk::from_reg(err_reg_msk))
+    }
+
+    /// Get error register mask.
+    pub fn set_err_reg_msk(&mut self, err_reg_msk: ErrorRegMsk) -> Result<(), Error<CommE, CsE>> {
+        let reg = err_reg_msk.to_reg();
+        self.iface.write_reg(Registers::ERR_REG_MSK, reg)?;
         Ok(())
     }
 }

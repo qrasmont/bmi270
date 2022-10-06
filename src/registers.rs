@@ -30,4 +30,5 @@ impl Registers {
     pub const AUX_RD_ADDR: u8 = 0x4D;
     pub const AUX_WR_ADDR: u8 = 0x4E;
     pub const AUX_WR_DATA: u8 = 0x4F;
+    pub const ERR_REG_MSK: u8 = 0x52;
 }
