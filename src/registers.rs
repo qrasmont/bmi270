@@ -39,4 +39,5 @@ impl Registers {
     pub const INT_MAP_DATA: u8 = 0x58;
     pub const INIT_CTRL: u8 = 0x59;
     pub const INIT_ADDR_0: u8 = 0x5B;
+    pub const INIT_DATA: u8 = 0x5E;
 }

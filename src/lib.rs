@@ -486,6 +486,18 @@ where
         self.iface.write(&mut payload)?;
         Ok(())
     }
+
+    /// Get the initialization register.
+    pub fn get_init_data(&mut self) -> Result<u8, Error<CommE, CsE>> {
+        let init_data = self.iface.read_reg(Registers::INIT_DATA)?;
+        Ok(init_data)
+    }
+
+    /// Set the initialization register.
+    pub fn set_init_data(&mut self, init_data: u8) -> Result<(), Error<CommE, CsE>> {
+        self.iface.write_reg(Registers::INIT_DATA, init_data)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {

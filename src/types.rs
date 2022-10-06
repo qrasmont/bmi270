@@ -1131,11 +1131,11 @@ impl IntMapDataMask {
 
 /// Data interrupt mapping.
 pub struct MapData {
-    // Map fifo full interrupt.
+    /// Map fifo full interrupt.
     pub ffull: bool,
-    // Map fifo watermark interrupt.
+    /// Map fifo watermark interrupt.
     pub fwm: bool,
-    // Map data ready interrupt.
+    /// Map data ready interrupt.
     pub drdy: bool,
     /// Map error interrupt.
     pub err: bool,
