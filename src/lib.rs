@@ -4,9 +4,9 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
-    Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IntIoCtrl, IntLatch, IntMapData,
-    IntMapFeat, InternalError, InternalStatus, InterruptStatus, PullUpConf, Saturation, Status,
-    WristGestureActivity, FIFO_LENGTH_1_MASK,
+    Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IfConf, IntIoCtrl, IntLatch,
+    IntMapData, IntMapFeat, InternalError, InternalStatus, InterruptStatus, PullUpConf, Saturation,
+    Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -543,6 +543,18 @@ where
     pub fn set_nvm_conf(&mut self, gyr_crt_conf: bool) -> Result<(), Error<CommE, CsE>> {
         let value: u8 = if gyr_crt_conf { 0x01 } else { 0x00 };
         self.iface.write_reg(Registers::NVM_CONF, value << 1)?;
+        Ok(())
+    }
+
+    /// Get the interface configuration.
+    pub fn get_if_conf(&mut self) -> Result<IfConf, Error<CommE, CsE>> {
+        let if_conf = self.iface.read_reg(Registers::IF_CONF)?;
+        Ok(IfConf::from_reg(if_conf))
+    }
+
+    /// Set the interface configuration.
+    pub fn set_if_conf(&mut self, if_conf: IfConf) -> Result<(), Error<CommE, CsE>> {
+        self.iface.write_reg(Registers::IF_CONF, if_conf.to_reg())?;
         Ok(())
     }
 }

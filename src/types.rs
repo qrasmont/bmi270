@@ -1291,3 +1291,60 @@ impl GyrCrtConf {
         crt_running << 2
     }
 }
+
+pub struct IfConfMask;
+impl IfConfMask {
+    pub const SPI3: u8 = 1;
+    pub const SPI3_OIS: u8 = 1 << 1;
+    pub const OIS_EN: u8 = 1 << 4;
+    pub const AUX_EN: u8 = 1 << 5;
+}
+
+/// SPI interface mode.
+#[repr(u8)]
+pub enum SpiMode {
+    /// SPI 4-wire mode.
+    Spi4 = 0x00,
+    /// SPI 3-wire mode.
+    Spi3 = 0x01,
+}
+
+/// Serial interface settings.
+pub struct IfConf {
+    /// SPI interface mode for primary interface.
+    pub spi_mode: SpiMode,
+    /// SPI interface mode for OIS interface.
+    pub spi_mode_ois: SpiMode,
+    /// OIS enable.
+    pub ois_en: bool,
+    /// AUX enable.
+    pub aux_en: bool,
+}
+
+impl IfConf {
+    pub fn from_reg(reg: u8) -> IfConf {
+        IfConf {
+            spi_mode: match reg & IfConfMask::SPI3 {
+                0x00 => SpiMode::Spi4,
+                0x01 => SpiMode::Spi3,
+                _ => panic!(), // TODO
+            },
+            spi_mode_ois: match (reg & IfConfMask::SPI3_OIS) >> 1 {
+                0x00 => SpiMode::Spi4,
+                0x01 => SpiMode::Spi3,
+                _ => panic!(), // TODO
+            },
+            ois_en: (reg & IfConfMask::OIS_EN) >> 2 != 0,
+            aux_en: (reg & IfConfMask::AUX_EN) >> 3 != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let spi_mode = self.spi_mode as u8;
+        let spi_mode_ois = self.spi_mode_ois as u8;
+        let ois_en = if self.ois_en { 0x01 } else { 0x00 };
+        let aux_en = if self.aux_en { 0x01 } else { 0x00 };
+
+        spi_mode | spi_mode_ois << 1 | ois_en << 2 | aux_en << 3
+    }
+}
