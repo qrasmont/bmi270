@@ -532,6 +532,19 @@ where
             .write_reg(Registers::GYR_CRT_CONF, gyr_crt_conf.to_reg())?;
         Ok(())
     }
+
+    /// Get NVM configuration.
+    pub fn get_nvm_conf(&mut self) -> Result<bool, Error<CommE, CsE>> {
+        let nvm_conf = self.iface.read_reg(Registers::NVM_CONF)?;
+        Ok((nvm_conf & 1 << 1) != 0)
+    }
+
+    /// Set NVM configuration.
+    pub fn set_nvm_conf(&mut self, gyr_crt_conf: bool) -> Result<(), Error<CommE, CsE>> {
+        let value: u8 = if gyr_crt_conf { 0x01 } else { 0x00 };
+        self.iface.write_reg(Registers::NVM_CONF, value << 1)?;
+        Ok(())
+    }
 }
 
 fn payload_to_axis(payload: &[u8]) -> AxisData {

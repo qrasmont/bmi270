@@ -43,4 +43,5 @@ impl Registers {
     pub const INTERNAL_ERROR: u8 = 0x5F;
     pub const AUX_IF_TRIM: u8 = 0x68;
     pub const GYR_CRT_CONF: u8 = 0x69;
+    pub const NVM_CONF: u8 = 0x6A;
 }
