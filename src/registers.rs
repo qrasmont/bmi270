@@ -46,4 +46,5 @@ impl Registers {
     pub const NVM_CONF: u8 = 0x6A;
     pub const IF_CONF: u8 = 0x6B;
     pub const DRV: u8 = 0x6C;
+    pub const ACC_SELF_TEST: u8 = 0x6D;
 }

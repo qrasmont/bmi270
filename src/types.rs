@@ -1421,3 +1421,64 @@ impl Drv {
         io_pad_drv1 | io_pad_i2c_b1 << 3 | io_pad_drv2 << 4 | io_pad_i2c_b2 << 7
     }
 }
+
+pub struct AccSelfTestMask;
+impl AccSelfTestMask {
+    pub const ACC_SELF_TEST_EN: u8 = 1;
+    pub const ACC_SELF_TEST_SIGN: u8 = 1 << 2;
+    pub const ACC_SELF_TEST_AMP: u8 = 1 << 3;
+}
+
+/// A sign.
+#[repr(u8)]
+pub enum Sign {
+    /// Negative.
+    Negative = 0x00,
+    /// Positive.
+    Positive = 0x01,
+}
+
+/// An amplitude.
+#[repr(u8)]
+pub enum Amplitude {
+    /// Low..
+    Low = 0x00,
+    /// High.
+    High = 0x01,
+}
+
+/// Accelerometer self test settings.
+pub struct AccSelfTest {
+    /// Enable accelerometer self test.
+    pub enable: bool,
+    /// Sign of self test excitation.
+    pub sign: Sign,
+    /// Amplitude of the self test deflection.
+    pub amplitude: Amplitude,
+}
+
+impl AccSelfTest {
+    pub fn from_reg(reg: u8) -> AccSelfTest {
+        AccSelfTest {
+            enable: (reg & AccSelfTestMask::ACC_SELF_TEST_EN) != 0,
+            sign: match (reg & AccSelfTestMask::ACC_SELF_TEST_SIGN) >> 2 {
+                0x00 => Sign::Negative,
+                0x01 => Sign::Positive,
+                _ => panic!(), // TODO
+            },
+            amplitude: match (reg & AccSelfTestMask::ACC_SELF_TEST_AMP) >> 3 {
+                0x00 => Amplitude::Low,
+                0x01 => Amplitude::High,
+                _ => panic!(), // TODO
+            },
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let enable = if self.enable { 0x01 } else { 0x00 };
+        let sign = self.sign as u8;
+        let amplitude = self.amplitude as u8;
+
+        enable | sign << 2 | amplitude << 3
+    }
+}

@@ -3,10 +3,10 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv, Error, ErrorReg,
-    ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IfConf, IntIoCtrl,
-    IntLatch, IntMapData, IntMapFeat, InternalError, InternalStatus, InterruptStatus, PullUpConf,
-    Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    AccConf, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv, Error,
+    ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IfConf,
+    IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError, InternalStatus, InterruptStatus,
+    PullUpConf, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -567,6 +567,22 @@ where
     /// Set the drive strength configuration.
     pub fn set_drv(&mut self, drv: Drv) -> Result<(), Error<CommE, CsE>> {
         self.iface.write_reg(Registers::DRV, drv.to_reg())?;
+        Ok(())
+    }
+
+    /// Get the accelerometer self test configuration.
+    pub fn get_acc_self_test(&mut self) -> Result<AccSelfTest, Error<CommE, CsE>> {
+        let acc_self_test = self.iface.read_reg(Registers::ACC_SELF_TEST)?;
+        Ok(AccSelfTest::from_reg(acc_self_test))
+    }
+
+    /// Set the accelerometer self test configuration.
+    pub fn set_acc_self_test(
+        &mut self,
+        acc_self_test: AccSelfTest,
+    ) -> Result<(), Error<CommE, CsE>> {
+        self.iface
+            .write_reg(Registers::ACC_SELF_TEST, acc_self_test.to_reg())?;
         Ok(())
     }
 }
