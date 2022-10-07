@@ -4,8 +4,8 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
-    Event, FifoConf, FifoDowns, GyrConf, GyrRange, IntIoCtrl, IntLatch, IntMapData, IntMapFeat,
-    InternalError, InternalStatus, InterruptStatus, PullUpConf, Saturation, Status,
+    Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IntIoCtrl, IntLatch, IntMapData,
+    IntMapFeat, InternalError, InternalStatus, InterruptStatus, PullUpConf, Saturation, Status,
     WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
@@ -516,6 +516,20 @@ where
     pub fn set_asda_pullup(&mut self, pull_up_conf: PullUpConf) -> Result<(), Error<CommE, CsE>> {
         self.iface
             .write_reg(Registers::AUX_IF_TRIM, pull_up_conf.to_reg())?;
+        Ok(())
+    }
+
+    /// Get gyroscope component retrimming register.
+    pub fn get_gyr_crt_conf(&mut self) -> Result<GyrCrtConf, Error<CommE, CsE>> {
+        let gyr_crt_conf = self.iface.read_reg(Registers::GYR_CRT_CONF)?;
+        Ok(GyrCrtConf::from_reg(gyr_crt_conf))
+    }
+
+    /// Set gyroscope component retrimming register.
+    /// GyrCrtConf.rdy_for_dl is read-only, only crt_running will be set.
+    pub fn set_gyr_crt_conf(&mut self, gyr_crt_conf: GyrCrtConf) -> Result<(), Error<CommE, CsE>> {
+        self.iface
+            .write_reg(Registers::GYR_CRT_CONF, gyr_crt_conf.to_reg())?;
         Ok(())
     }
 }

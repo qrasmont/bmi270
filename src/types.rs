@@ -1249,3 +1249,45 @@ impl PullUpConf {
         self as u8
     }
 }
+
+pub struct GyrCrtConfMask;
+impl GyrCrtConfMask {
+    pub const CRT_RUNNING: u8 = 1 << 2;
+    pub const RDY_FOR_DL: u8 = 1 << 3;
+}
+
+/// Crt data ready for download.
+#[repr(u8)]
+pub enum ReadyForDl {
+    /// Pull up off
+    OnGoing = 0x00,
+    /// Pull up 40k.
+    Complete = 0x01,
+}
+
+/// Component retrimming for gyroscope.
+pub struct GyrCrtConf {
+    /// Indicates that the CRT is currently running.
+    pub crt_running: bool,
+    /// Pacemaker bit for downloading CRT (ready only).
+    pub rdy_for_dl: ReadyForDl,
+}
+
+impl GyrCrtConf {
+    pub fn from_reg(reg: u8) -> GyrCrtConf {
+        GyrCrtConf {
+            crt_running: reg & GyrCrtConfMask::CRT_RUNNING >> 2 != 0,
+            rdy_for_dl: match (reg & GyrCrtConfMask::RDY_FOR_DL) >> 3 {
+                0x00 => ReadyForDl::OnGoing,
+                0x01 => ReadyForDl::Complete,
+                _ => panic!(), // TODO
+            },
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let crt_running = if self.crt_running { 0x01 } else { 0x00 };
+
+        crt_running << 2
+    }
+}
