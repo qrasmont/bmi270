@@ -45,4 +45,5 @@ impl Registers {
     pub const GYR_CRT_CONF: u8 = 0x69;
     pub const NVM_CONF: u8 = 0x6A;
     pub const IF_CONF: u8 = 0x6B;
+    pub const DRV: u8 = 0x6C;
 }

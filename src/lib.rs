@@ -3,10 +3,10 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Error, ErrorReg, ErrorRegMsk,
-    Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IfConf, IntIoCtrl, IntLatch,
-    IntMapData, IntMapFeat, InternalError, InternalStatus, InterruptStatus, PullUpConf, Saturation,
-    Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    AccConf, AccRange, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv, Error, ErrorReg,
+    ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IfConf, IntIoCtrl,
+    IntLatch, IntMapData, IntMapFeat, InternalError, InternalStatus, InterruptStatus, PullUpConf,
+    Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -555,6 +555,18 @@ where
     /// Set the interface configuration.
     pub fn set_if_conf(&mut self, if_conf: IfConf) -> Result<(), Error<CommE, CsE>> {
         self.iface.write_reg(Registers::IF_CONF, if_conf.to_reg())?;
+        Ok(())
+    }
+
+    /// Get the drive strength configuration.
+    pub fn get_drv(&mut self) -> Result<Drv, Error<CommE, CsE>> {
+        let drv = self.iface.read_reg(Registers::DRV)?;
+        Ok(Drv::from_reg(drv))
+    }
+
+    /// Set the drive strength configuration.
+    pub fn set_drv(&mut self, drv: Drv) -> Result<(), Error<CommE, CsE>> {
+        self.iface.write_reg(Registers::DRV, drv.to_reg())?;
         Ok(())
     }
 }

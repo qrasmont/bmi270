@@ -1348,3 +1348,76 @@ impl IfConf {
         spi_mode | spi_mode_ois << 1 | ois_en << 2 | aux_en << 3
     }
 }
+
+pub struct DrvMask;
+impl DrvMask {
+    pub const IO_PAD_DRV1: u8 = 0b0000_0111;
+    pub const IO_PAD_I2C_B1: u8 = 1 << 3;
+    pub const IO_PAD_DRV2: u8 = 0b0111_0000;
+    pub const IO_PAD_I2C_B2: u8 = 1 << 7;
+}
+
+/// Drive strength. L7 is 10x stronger than L0.
+#[repr(u8)]
+pub enum DriveStrength {
+    L0 = 0b000,
+    L1 = 0b001,
+    L2 = 0b010,
+    L3 = 0b011,
+    L4 = 0b100,
+    L5 = 0b101,
+    L6 = 0b110,
+    L7 = 0b111,
+}
+
+/// Drive strength control register.
+pub struct Drv {
+    /// Output pad drive strength for the SDO and SDx pins
+    pub io_pad_drv1: DriveStrength,
+    /// Enable additional increase in pull down strength of the SDx pin in I2C mode.
+    pub io_pad_i2c_b1: bool,
+    /// Output pad drive strength for the OSDO ASCx and ASDx pins
+    pub io_pad_drv2: DriveStrength,
+    /// Enable additional increase in pull down strength of the ASCx and ASDx pin in I2C mode.
+    pub io_pad_i2c_b2: bool,
+}
+
+impl Drv {
+    pub fn from_reg(reg: u8) -> Drv {
+        Drv {
+            io_pad_drv1: match reg & DrvMask::IO_PAD_DRV1 {
+                0b000 => DriveStrength::L0,
+                0b001 => DriveStrength::L1,
+                0b010 => DriveStrength::L2,
+                0b011 => DriveStrength::L3,
+                0b100 => DriveStrength::L4,
+                0b101 => DriveStrength::L5,
+                0b110 => DriveStrength::L6,
+                0b111 => DriveStrength::L7,
+                _ => panic!(), // TODO
+            },
+            io_pad_i2c_b1: (reg & DrvMask::IO_PAD_I2C_B1) >> 3 != 0,
+            io_pad_drv2: match (reg & DrvMask::IO_PAD_DRV2) >> 4 {
+                0b000 => DriveStrength::L0,
+                0b001 => DriveStrength::L1,
+                0b010 => DriveStrength::L2,
+                0b011 => DriveStrength::L3,
+                0b100 => DriveStrength::L4,
+                0b101 => DriveStrength::L5,
+                0b110 => DriveStrength::L6,
+                0b111 => DriveStrength::L7,
+                _ => panic!(), // TODO
+            },
+            io_pad_i2c_b2: (reg & DrvMask::IO_PAD_I2C_B2) >> 7 != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let io_pad_drv1 = self.io_pad_drv1 as u8;
+        let io_pad_i2c_b1 = if self.io_pad_i2c_b1 { 0x01 } else { 0x00 };
+        let io_pad_drv2 = self.io_pad_drv2 as u8;
+        let io_pad_i2c_b2 = if self.io_pad_i2c_b2 { 0x01 } else { 0x00 };
+
+        io_pad_drv1 | io_pad_i2c_b1 << 3 | io_pad_drv2 << 4 | io_pad_i2c_b2 << 7
+    }
+}
