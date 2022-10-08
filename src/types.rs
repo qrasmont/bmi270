@@ -1513,3 +1513,57 @@ impl GyrSelfTest {
         }
     }
 }
+
+pub struct NvConfMask;
+impl NvConfMask {
+    pub const SPI_EN: u8 = 1;
+    pub const I2C_WDT_SEL: u8 = 1 << 1;
+    pub const I2C_WDT_EN: u8 = 1 << 2;
+    pub const ACC_OFF_EN: u8 = 1 << 3;
+}
+
+/// A timer period.
+#[repr(u8)]
+pub enum TimePedriod {
+    /// A 1.25ms period.
+    Short1_25Ms = 0x00,
+    /// A 40ms period.
+    Long40Ms = 0x01,
+}
+
+/// NVM backed configuration.
+pub struct NvConf {
+    /// Enable SPI as the primary interface instead of I2C.
+    pub spi_en: bool,
+    /// Timer period for the I2C watchdog.
+    pub i2c_wdt_sel: TimePedriod,
+    /// I2C watchdog fo the SDA pin.
+    pub i2c_wdt_en: bool,
+    /// Add the offset defined in the off_acc_[xyz] registers to filtered and unfiltered
+    /// accelerometer data.
+    pub acc_off_en: bool,
+}
+
+impl NvConf {
+    pub fn from_reg(reg: u8) -> NvConf {
+        NvConf {
+            spi_en: (reg & NvConfMask::SPI_EN) != 0,
+            i2c_wdt_sel: match (reg & NvConfMask::I2C_WDT_SEL) >> 1 {
+                0x00 => TimePedriod::Short1_25Ms,
+                0x01 => TimePedriod::Long40Ms,
+                _ => panic!(), // TODO
+            },
+            i2c_wdt_en: (reg & NvConfMask::I2C_WDT_EN) != 0,
+            acc_off_en: (reg & NvConfMask::ACC_OFF_EN) != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let spi_en = if self.spi_en { 0x01 } else { 0x00 };
+        let i2c_wdt_sel = self.i2c_wdt_sel as u8;
+        let i2c_wdt_en = if self.i2c_wdt_en { 0x01 } else { 0x00 };
+        let acc_off_en = if self.acc_off_en { 0x01 } else { 0x00 };
+
+        spi_en | i2c_wdt_sel << 1 | i2c_wdt_en << 2 | acc_off_en << 3
+    }
+}

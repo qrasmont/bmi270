@@ -48,4 +48,5 @@ impl Registers {
     pub const DRV: u8 = 0x6C;
     pub const ACC_SELF_TEST: u8 = 0x6D;
     pub const GYR_SELF_TEST: u8 = 0x6E;
+    pub const NV_CONF: u8 = 0x70;
 }

@@ -6,7 +6,8 @@ use types::{
     AccConf, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv, Error,
     ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, GyrSelfTest,
     IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError, InternalStatus,
-    InterruptStatus, PullUpConf, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    InterruptStatus, NvConf, PullUpConf, Saturation, Status, WristGestureActivity,
+    FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -590,6 +591,18 @@ where
     pub fn get_gyr_self_test(&mut self) -> Result<GyrSelfTest, Error<CommE, CsE>> {
         let gyr_self_test = self.iface.read_reg(Registers::GYR_SELF_TEST)?;
         Ok(GyrSelfTest::from_reg(gyr_self_test))
+    }
+
+    /// Get NV configuration.
+    pub fn get_nv_conf(&mut self) -> Result<NvConf, Error<CommE, CsE>> {
+        let nv_conf = self.iface.read_reg(Registers::NV_CONF)?;
+        Ok(NvConf::from_reg(nv_conf))
+    }
+
+    /// Set NV configuration.
+    pub fn set_nv_conf(&mut self, nv_conf: NvConf) -> Result<(), Error<CommE, CsE>> {
+        self.iface.write_reg(Registers::NV_CONF, nv_conf.to_reg())?;
+        Ok(())
     }
 }
 
