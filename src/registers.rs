@@ -53,4 +53,5 @@ impl Registers {
     pub const OFFSET_3: u8 = 0x74;
     pub const PWR_CONF: u8 = 0x7C;
     pub const PWR_CTRL: u8 = 0x7D;
+    pub const CMD: u8 = 0x7E;
 }

@@ -1666,3 +1666,18 @@ impl PwrCtrl {
         aux_en | gyr_en << 1 | acc_en << 2 | temp_en << 3
     }
 }
+
+/// Commands.
+#[repr(u8)]
+pub enum Cmd {
+    /// Trigger special gyro operations.
+    GTrigger = 0x02,
+    /// Applies new gyro gain value.
+    UsrGain = 0x03,
+    /// Writes the NVM backed registers into NVM.
+    NvmProg = 0xA0,
+    /// Clears fifo content.
+    FifoFlush = 0xB0,
+    /// Triggers a reset. User configuration is overwritten.
+    SoftReset = 0xB6,
+}

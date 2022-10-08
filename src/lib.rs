@@ -3,8 +3,8 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv,
-    Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
+    AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Cmd, Data,
+    Drv, Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
     GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
     InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, PwrCtrl, Saturation, Status,
     WristGestureActivity, FIFO_LENGTH_1_MASK,
@@ -691,6 +691,12 @@ where
     pub fn set_pwr_ctrl(&mut self, pwr_ctrl: PwrCtrl) -> Result<(), Error<CommE, CsE>> {
         self.iface
             .write_reg(Registers::PWR_CTRL, pwr_ctrl.to_reg())?;
+        Ok(())
+    }
+
+    /// Send a command.
+    pub fn send_cmd(&mut self, cmd: Cmd) -> Result<(), Error<CommE, CsE>> {
+        self.iface.write_reg(Registers::CMD, cmd as u8)?;
         Ok(())
     }
 }
