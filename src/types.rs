@@ -1626,3 +1626,43 @@ impl PwrConf {
         power_save | fifo_self_wake_up << 1 | fup_en << 2
     }
 }
+
+pub struct PwrCtrlMask;
+impl PwrCtrlMask {
+    pub const AUX_EN: u8 = 1;
+    pub const GYR_EN: u8 = 1 << 1;
+    pub const ACC_EN: u8 = 1 << 2;
+    pub const TEMP_EN: u8 = 1 << 3;
+}
+
+/// Power mode control.
+pub struct PwrCtrl {
+    /// Enable auxiliary device.
+    pub aux_en: bool,
+    /// Enable gyroscope.
+    pub gyr_en: bool,
+    /// Enable accelerometer.
+    pub acc_en: bool,
+    /// Enable temperature sensor.
+    pub temp_en: bool,
+}
+
+impl PwrCtrl {
+    pub fn from_reg(reg: u8) -> PwrCtrl {
+        PwrCtrl {
+            aux_en: (reg & PwrCtrlMask::AUX_EN) != 0,
+            gyr_en: (reg & PwrCtrlMask::GYR_EN) != 0,
+            acc_en: (reg & PwrCtrlMask::ACC_EN) != 0,
+            temp_en: (reg & PwrCtrlMask::TEMP_EN) != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let aux_en = if self.aux_en { 0x01 } else { 0x00 };
+        let gyr_en = if self.gyr_en { 0x01 } else { 0x00 };
+        let acc_en = if self.acc_en { 0x01 } else { 0x00 };
+        let temp_en = if self.temp_en { 0x01 } else { 0x00 };
+
+        aux_en | gyr_en << 1 | acc_en << 2 | temp_en << 3
+    }
+}

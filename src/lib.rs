@@ -6,7 +6,7 @@ use types::{
     AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv,
     Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
     GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
-    InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, Saturation, Status,
+    InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, PwrCtrl, Saturation, Status,
     WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
@@ -678,6 +678,19 @@ where
     pub fn set_pwr_conf(&mut self, pwr_conf: PwrConf) -> Result<(), Error<CommE, CsE>> {
         self.iface
             .write_reg(Registers::PWR_CONF, pwr_conf.to_reg())?;
+        Ok(())
+    }
+
+    /// Get power control.
+    pub fn get_pwr_ctrl(&mut self) -> Result<PwrCtrl, Error<CommE, CsE>> {
+        let pwr_ctrl = self.iface.read_reg(Registers::PWR_CTRL)?;
+        Ok(PwrCtrl::from_reg(pwr_ctrl))
+    }
+
+    /// Set power control.
+    pub fn set_pwr_ctrl(&mut self, pwr_ctrl: PwrCtrl) -> Result<(), Error<CommE, CsE>> {
+        self.iface
+            .write_reg(Registers::PWR_CTRL, pwr_ctrl.to_reg())?;
         Ok(())
     }
 }
