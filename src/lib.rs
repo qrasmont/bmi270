@@ -6,8 +6,8 @@ use types::{
     AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv,
     Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
     GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
-    InternalStatus, InterruptStatus, NvConf, PullUpConf, Saturation, Status, WristGestureActivity,
-    FIFO_LENGTH_1_MASK,
+    InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, Saturation, Status,
+    WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -665,6 +665,19 @@ where
         payload[4] |= if gyr_offsets.gain_en { 0x01 } else { 0x00 } << 7;
         self.iface.write(&mut payload)?;
 
+        Ok(())
+    }
+
+    /// Get power configuration.
+    pub fn get_pwr_conf(&mut self) -> Result<PwrConf, Error<CommE, CsE>> {
+        let pwr_conf = self.iface.read_reg(Registers::PWR_CONF)?;
+        Ok(PwrConf::from_reg(pwr_conf))
+    }
+
+    /// Set power configuration.
+    pub fn set_pwr_conf(&mut self, pwr_conf: PwrConf) -> Result<(), Error<CommE, CsE>> {
+        self.iface
+            .write_reg(Registers::PWR_CONF, pwr_conf.to_reg())?;
         Ok(())
     }
 }

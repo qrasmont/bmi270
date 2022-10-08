@@ -1591,3 +1591,38 @@ pub struct GyrOffsets {
     /// Enable gain compensation.
     pub gain_en: bool,
 }
+
+pub struct PwrConfMask;
+impl PwrConfMask {
+    pub const ADV_PWR_SAVE: u8 = 1;
+    pub const FIFO_SELF_WAKE_UP: u8 = 1 << 1;
+    pub const FUP_EN: u8 = 1 << 2;
+}
+
+/// Power mode configuration.
+pub struct PwrConf {
+    /// Advanced power save.
+    pub power_save: bool,
+    /// Fifo read in low power mode.
+    pub fifo_self_wake_up: bool,
+    /// Fast power up.
+    pub fup_en: bool,
+}
+
+impl PwrConf {
+    pub fn from_reg(reg: u8) -> PwrConf {
+        PwrConf {
+            power_save: (reg & PwrConfMask::ADV_PWR_SAVE) != 0,
+            fifo_self_wake_up: (reg & PwrConfMask::FIFO_SELF_WAKE_UP) != 0,
+            fup_en: (reg & PwrConfMask::FUP_EN) != 0,
+        }
+    }
+
+    pub fn to_reg(self) -> u8 {
+        let power_save = if self.power_save { 0x01 } else { 0x00 };
+        let fifo_self_wake_up = if self.fifo_self_wake_up { 0x01 } else { 0x00 };
+        let fup_en = if self.fup_en { 0x01 } else { 0x00 };
+
+        power_save | fifo_self_wake_up << 1 | fup_en << 2
+    }
+}
