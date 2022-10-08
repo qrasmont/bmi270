@@ -50,4 +50,5 @@ impl Registers {
     pub const GYR_SELF_TEST: u8 = 0x6E;
     pub const NV_CONF: u8 = 0x70;
     pub const OFFSET_0: u8 = 0x71;
+    pub const OFFSET_3: u8 = 0x74;
 }

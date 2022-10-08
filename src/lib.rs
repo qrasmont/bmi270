@@ -4,8 +4,8 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv,
-    Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange,
-    GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
+    Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
+    GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
     InternalStatus, InterruptStatus, NvConf, PullUpConf, Saturation, Status, WristGestureActivity,
     FIFO_LENGTH_1_MASK,
 };
@@ -625,6 +625,46 @@ where
             acc_offsets.z,
         ];
         self.iface.write(&mut payload)?;
+        Ok(())
+    }
+
+    /// Get gyroscope offsets.
+    pub fn get_gyr_offsets(&mut self) -> Result<GyrOffsets, Error<CommE, CsE>> {
+        let mut payload = [0_u8; 5];
+        payload[0] = Registers::OFFSET_3;
+        self.iface.read(&mut payload)?;
+
+        let x = u16::from(payload[1]) | u16::from(payload[4] & 0b0000_0011) << 8;
+        let y = u16::from(payload[2]) | u16::from(payload[4] & 0b0000_1100) << 6;
+        let z = u16::from(payload[3]) | u16::from(payload[4] & 0b0011_0000) << 4;
+        let offset_en = (payload[4] & 1 << 6) != 0;
+        let gain_en = (payload[4] & 1 << 7) != 0;
+
+        Ok(GyrOffsets {
+            x,
+            y,
+            z,
+            offset_en,
+            gain_en,
+        })
+    }
+
+    /// Set gyroscope offsets.
+    pub fn set_gyr_offsets(&mut self, gyr_offsets: GyrOffsets) -> Result<(), Error<CommE, CsE>> {
+        let mut payload = [0_u8; 5];
+        payload[0] = Registers::OFFSET_3;
+
+        payload[1] = gyr_offsets.x as u8;
+        payload[2] = gyr_offsets.y as u8;
+        payload[3] = gyr_offsets.z as u8;
+
+        payload[4] |= (gyr_offsets.x >> 8 & 0b0000_0011) as u8;
+        payload[4] |= (gyr_offsets.y >> 6 & 0b0000_1100) as u8;
+        payload[4] |= (gyr_offsets.z >> 4 & 0b0011_0000) as u8;
+        payload[4] |= if gyr_offsets.offset_en { 0x01 } else { 0x00 } << 6;
+        payload[4] |= if gyr_offsets.gain_en { 0x01 } else { 0x00 } << 7;
+        self.iface.write(&mut payload)?;
+
         Ok(())
     }
 }

@@ -1577,3 +1577,17 @@ pub struct AccOffsets {
     /// Offset compensation for the z axis.
     pub z: u8,
 }
+
+/// Gyroscope offsets compensation.
+pub struct GyrOffsets {
+    /// Offset compensation for the x axis.
+    pub x: u16,
+    /// Offset compensation for the y axis.
+    pub y: u16,
+    /// Offset compensation for the z axis.
+    pub z: u16,
+    /// Enable offset for filtered and unfiltered data.
+    pub offset_en: bool,
+    /// Enable gain compensation.
+    pub gain_en: bool,
+}
