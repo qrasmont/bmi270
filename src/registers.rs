@@ -49,4 +49,5 @@ impl Registers {
     pub const ACC_SELF_TEST: u8 = 0x6D;
     pub const GYR_SELF_TEST: u8 = 0x6E;
     pub const NV_CONF: u8 = 0x70;
+    pub const OFFSET_0: u8 = 0x71;
 }

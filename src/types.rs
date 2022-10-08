@@ -1567,3 +1567,13 @@ impl NvConf {
         spi_en | i2c_wdt_sel << 1 | i2c_wdt_en << 2 | acc_off_en << 3
     }
 }
+
+/// Accelerometer offsets compensation.
+pub struct AccOffsets {
+    /// Offset compensation for the x axis.
+    pub x: u8,
+    /// Offset compensation for the y axis.
+    pub y: u8,
+    /// Offset compensation for the z axis.
+    pub z: u8,
+}

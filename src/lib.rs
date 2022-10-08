@@ -3,10 +3,10 @@
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
-    AccConf, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv, Error,
-    ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, GyrSelfTest,
-    IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError, InternalStatus,
-    InterruptStatus, NvConf, PullUpConf, Saturation, Status, WristGestureActivity,
+    AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv,
+    Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange,
+    GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
+    InternalStatus, InterruptStatus, NvConf, PullUpConf, Saturation, Status, WristGestureActivity,
     FIFO_LENGTH_1_MASK,
 };
 
@@ -602,6 +602,29 @@ where
     /// Set NV configuration.
     pub fn set_nv_conf(&mut self, nv_conf: NvConf) -> Result<(), Error<CommE, CsE>> {
         self.iface.write_reg(Registers::NV_CONF, nv_conf.to_reg())?;
+        Ok(())
+    }
+
+    /// Get accelerometer offsets.
+    pub fn get_acc_offsets(&mut self) -> Result<AccOffsets, Error<CommE, CsE>> {
+        let mut payload = [Registers::OFFSET_0, 0, 0, 0];
+        self.iface.read(&mut payload)?;
+        Ok(AccOffsets {
+            x: payload[1],
+            y: payload[2],
+            z: payload[3],
+        })
+    }
+
+    /// Set accelerometer offsets.
+    pub fn set_acc_offsets(&mut self, acc_offsets: AccOffsets) -> Result<(), Error<CommE, CsE>> {
+        let mut payload = [
+            Registers::OFFSET_0,
+            acc_offsets.x,
+            acc_offsets.y,
+            acc_offsets.z,
+        ];
+        self.iface.write(&mut payload)?;
         Ok(())
     }
 }
