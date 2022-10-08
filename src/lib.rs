@@ -4,9 +4,9 @@ use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 use types::{
     AccConf, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Data, Drv, Error,
-    ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, IfConf,
-    IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError, InternalStatus, InterruptStatus,
-    PullUpConf, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrRange, GyrSelfTest,
+    IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError, InternalStatus,
+    InterruptStatus, PullUpConf, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod interface;
@@ -584,6 +584,12 @@ where
         self.iface
             .write_reg(Registers::ACC_SELF_TEST, acc_self_test.to_reg())?;
         Ok(())
+    }
+
+    /// Get the gyroscope self test configuration.
+    pub fn get_gyr_self_test(&mut self) -> Result<GyrSelfTest, Error<CommE, CsE>> {
+        let gyr_self_test = self.iface.read_reg(Registers::GYR_SELF_TEST)?;
+        Ok(GyrSelfTest::from_reg(gyr_self_test))
     }
 }
 

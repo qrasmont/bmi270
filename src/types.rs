@@ -1482,3 +1482,34 @@ impl AccSelfTest {
         enable | sign << 2 | amplitude << 3
     }
 }
+
+pub struct GyrSelfTestMask;
+impl GyrSelfTestMask {
+    pub const GYR_ST_AXES_DONE: u8 = 1;
+    pub const GYR_AXIS_X_OK: u8 = 1 << 1;
+    pub const GYR_AXIS_Y_OK: u8 = 1 << 2;
+    pub const GYR_AXIS_Z_OK: u8 = 1 << 3;
+}
+
+/// Gyroscope self test settings.
+pub struct GyrSelfTest {
+    /// Functional test of detection channels finished.
+    pub done: bool,
+    /// Self test status of the x axis.
+    pub x_ok: bool,
+    /// Self test status of the y axis.
+    pub y_ok: bool,
+    /// Self test status of the z axis.
+    pub z_ok: bool,
+}
+
+impl GyrSelfTest {
+    pub fn from_reg(reg: u8) -> GyrSelfTest {
+        GyrSelfTest {
+            done: (reg & GyrSelfTestMask::GYR_ST_AXES_DONE) != 0,
+            x_ok: (reg & GyrSelfTestMask::GYR_AXIS_X_OK) != 0,
+            y_ok: (reg & GyrSelfTestMask::GYR_AXIS_Y_OK) != 0,
+            z_ok: (reg & GyrSelfTestMask::GYR_AXIS_Z_OK) != 0,
+        }
+    }
+}
