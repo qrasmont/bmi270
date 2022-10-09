@@ -34,7 +34,7 @@ impl<I2C> Bmi270<I2cInterface<I2C>> {
 
 impl<SPI, CS> Bmi270<SpiInterface<SPI, CS>> {
     /// Create a new Bmi270 device with SPI communication.
-    pub fn new_i2c(spi: SPI, cs: CS) -> Self {
+    pub fn new_spi(spi: SPI, cs: CS) -> Self {
         Bmi270 {
             iface: SpiInterface { spi, cs },
         }
