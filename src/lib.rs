@@ -14,15 +14,20 @@ pub mod interface;
 mod registers;
 mod types;
 
+pub use interface::I2cAddr;
+
 pub struct Bmi270<I> {
     iface: I,
 }
 
 impl<I2C> Bmi270<I2cInterface<I2C>> {
     /// Create a new Bmi270 device with I2C communication.
-    pub fn new_i2c(i2c: I2C) -> Self {
+    pub fn new_i2c(i2c: I2C, address: I2cAddr) -> Self {
         Bmi270 {
-            iface: I2cInterface { i2c },
+            iface: I2cInterface {
+                i2c,
+                address: address.addr(),
+            },
         }
     }
 

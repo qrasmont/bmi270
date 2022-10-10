@@ -6,11 +6,35 @@ const BMI270_I2C_ADDR: u8 = 0x68;
 
 pub struct I2cInterface<I2C> {
     pub i2c: I2C,
+    pub address: u8,
 }
 
 pub struct SpiInterface<SPI, CS> {
     pub spi: SPI,
     pub cs: CS,
+}
+
+/// I2c address.
+pub enum I2cAddr {
+    /// Use the default i2c address, 0x68.
+    Default,
+    /// Use alternative 0x69 as the i2c address. (selected when SDO is pulled high).
+    Alternative,
+}
+
+impl Default for I2cAddr {
+    fn default() -> Self {
+        I2cAddr::Default
+    }
+}
+
+impl I2cAddr {
+    pub fn addr(self) -> u8 {
+        match self {
+            I2cAddr::Default => BMI270_I2C_ADDR,
+            I2cAddr::Alternative => BMI270_I2C_ADDR | 1,
+        }
+    }
 }
 
 pub trait WriteData {
@@ -32,14 +56,14 @@ where
     type Error = Error<E, ()>;
     fn write(&mut self, payload: &mut [u8]) -> Result<(), Self::Error> {
         self.i2c
-            .write(BMI270_I2C_ADDR, payload)
+            .write(self.address, payload)
             .map_err(Error::Comm)
     }
 
     fn write_reg(&mut self, register: u8, data: u8) -> Result<(), Self::Error> {
         let payload: [u8; 2] = [register, data];
         self.i2c
-            .write(BMI270_I2C_ADDR, &payload)
+            .write(self.address, &payload)
             .map_err(Error::Comm)
     }
 }
@@ -78,14 +102,14 @@ where
     type Error = Error<E, ()>;
     fn read(&mut self, payload: &mut [u8]) -> Result<(), Self::Error> {
         self.i2c
-            .write_read(BMI270_I2C_ADDR, &[payload[0]], &mut payload[1..])
+            .write_read(self.address, &[payload[0]], &mut payload[1..])
             .map_err(Error::Comm)
     }
 
     fn read_reg(&mut self, register: u8) -> Result<u8, Self::Error> {
         let mut data = [0];
         self.i2c
-            .write_read(BMI270_I2C_ADDR, &[register], &mut data)
+            .write_read(self.address, &[register], &mut data)
             .map_err(Error::Comm)
             .and(Ok(data[0]))
     }
