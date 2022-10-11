@@ -2,19 +2,19 @@
 
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
-use types::{
-    AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Cmd, Data,
-    Drv, Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
-    GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
-    InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, PwrCtrl, Saturation, Status,
-    WristGestureActivity, FIFO_LENGTH_1_MASK,
-};
 
 pub mod interface;
 mod registers;
 mod types;
 
 pub use interface::I2cAddr;
+pub use types::{
+    AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Cmd, Data,
+    Drv, Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
+    GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
+    InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, PwrCtrl, Saturation, Status,
+    WristGestureActivity, FIFO_LENGTH_1_MASK,
+};
 
 pub struct Bmi270<I> {
     iface: I,
