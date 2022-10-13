@@ -1,5 +1,10 @@
 #![no_std]
 
+#[macro_use]
+extern crate fixedvec;
+
+use fixedvec::FixedVec;
+
 use interface::{I2cInterface, ReadData, SpiInterface, WriteData};
 use registers::Registers;
 
@@ -7,29 +12,32 @@ pub mod interface;
 mod registers;
 mod types;
 
+mod config;
+use config::BMI270_CONFIG_FILE;
+
 pub use interface::I2cAddr;
 pub use types::{
-    AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Cmd, Data,
-    Drv, Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf, GyrOffsets,
-    GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat, InternalError,
-    InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, PwrCtrl, Saturation, Status,
-    WristGestureActivity, FIFO_LENGTH_1_MASK,
+    AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Burst, Cmd,
+    Data, Drv, Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf,
+    GyrOffsets, GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat,
+    InternalError, InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, PwrCtrl,
+    Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub struct Bmi270<I> {
     iface: I,
-    max_burst: Option<u16>
+    max_burst: u16,
 }
 
 impl<I2C> Bmi270<I2cInterface<I2C>> {
     /// Create a new Bmi270 device with I2C communication.
-    pub fn new_i2c(i2c: I2C, address: I2cAddr, max_burst: Option<u16>) -> Self {
+    pub fn new_i2c(i2c: I2C, address: I2cAddr, burst: Burst) -> Self {
         Bmi270 {
             iface: I2cInterface {
                 i2c,
                 address: address.addr(),
             },
-            max_burst
+            max_burst: burst.val(),
         }
     }
 
@@ -41,10 +49,10 @@ impl<I2C> Bmi270<I2cInterface<I2C>> {
 
 impl<SPI, CS> Bmi270<SpiInterface<SPI, CS>> {
     /// Create a new Bmi270 device with SPI communication.
-    pub fn new_spi(spi: SPI, cs: CS, max_burst: Option<u16>) -> Self {
+    pub fn new_spi(spi: SPI, cs: CS, burst: Burst) -> Self {
         Bmi270 {
             iface: SpiInterface { spi, cs },
-            max_burst
+            max_burst: burst.val(),
         }
     }
 
@@ -705,6 +713,40 @@ where
     /// Send a command.
     pub fn send_cmd(&mut self, cmd: Cmd) -> Result<(), Error<CommE, CsE>> {
         self.iface.write_reg(Registers::CMD, cmd as u8)?;
+        Ok(())
+    }
+
+    /// Initialize sensor.
+    pub fn init(&mut self) -> Result<(), Error<CommE, CsE>> {
+        // TODO allw config of pre alloc
+        let mut preallocated_space = alloc_stack!([u8; 512]);
+        let mut vec = FixedVec::new(&mut preallocated_space);
+
+        let mut offset = 0u16;
+        let max_len = BMI270_CONFIG_FILE.len() as u16;
+        let burst = self.max_burst - 1; // Remove 1 for address byte
+
+        self.set_init_ctrl(0)?;
+
+        while offset < max_len {
+            self.set_init_addr(offset / 2)?;
+
+            let end = offset + burst % max_len;
+
+            vec.push(Registers::INIT_DATA)
+                .map_err(|_| Error::<CommE, CsE>::Alloc)?;
+
+            vec.push_all(&BMI270_CONFIG_FILE[offset as usize..end as usize])
+                .map_err(|_| Error::<CommE, CsE>::Alloc)?;
+
+            self.iface.write(&mut vec.as_mut_slice())?;
+
+            offset += burst;
+            vec.clear();
+        }
+
+        self.set_init_ctrl(1)?;
+
         Ok(())
     }
 }

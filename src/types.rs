@@ -5,6 +5,31 @@ pub enum Error<CommE, CsE> {
     Comm(CommE),
     /// Pin error on the SPI chip select.
     Cs(CsE),
+    /// Memory allocation error during initialization.
+    Alloc,
+}
+
+/// Data burst.
+pub enum Burst {
+    /// Burst of 512 bytes.
+    Max,
+    /// An other burst amount under 512 bytes.
+    Other(u16),
+}
+
+impl Default for Burst {
+    fn default() -> Self {
+        Burst::Max
+    }
+}
+
+impl Burst {
+    pub fn val(self) -> u16 {
+        match self {
+            Burst::Max => 512,
+            Burst::Other(v) => v % 512,
+        }
+    }
 }
 
 pub struct ErrRegMask;
