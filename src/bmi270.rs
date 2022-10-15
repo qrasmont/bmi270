@@ -1,8 +1,8 @@
 use fixedvec::FixedVec;
 
+use crate::config::BMI270_CONFIG_FILE;
 use crate::interface::{I2cAddr, I2cInterface, ReadData, SpiInterface, WriteData};
 use crate::registers::Registers;
-use crate::config::BMI270_CONFIG_FILE;
 
 use crate::types::{
     AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Burst, Cmd,
@@ -719,7 +719,11 @@ where
         while offset < max_len {
             self.set_init_addr(offset / 2)?;
 
-            let end = offset + burst % max_len;
+            let end = if (offset + burst) > max_len {
+                max_len
+            } else {
+                offset + burst
+            };
 
             vec.push(Registers::INIT_DATA)
                 .map_err(|_| Error::<CommE, CsE>::Alloc)?;
