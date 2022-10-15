@@ -706,7 +706,13 @@ where
 
     /// Initialize sensor.
     pub fn init(&mut self) -> Result<(), Error<CommE, CsE>> {
-        // TODO allw config of pre alloc
+
+        // Disable advanced power mode
+        let mut pwr_conf = self.get_pwr_conf()?;
+        pwr_conf.power_save = false;
+        self.set_pwr_conf(pwr_conf)?;
+
+        // TODO allow config of pre alloc
         let mut preallocated_space = alloc_stack!([u8; 512]);
         let mut vec = FixedVec::new(&mut preallocated_space);
 

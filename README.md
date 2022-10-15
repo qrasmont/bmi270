@@ -4,29 +4,30 @@
 
 This is an [embedded-hal](https://github.com/rust-embedded/embedded-hal) driver for the Bosch BMI270 inertial measurement unit.
 
-## Init
-
-I sill need to figure out / learn how to get a platform agnostic way to use a delay.
-
-In the mean time the init sequence has to be perform in 2 steps:
-1. Disable advance power save and wait 450 us
-2. Call init()
+## Quick start
 
 ```rust
 // ...
 
-// Disable advanced power save
-let mut pwr_conf = bmi.get_pwr_conf().unwrap();
-pwr_conf.power_save = false;
-bmi.set_pwr_conf(pwr_conf).unwrap();
+/// Create a new Bmi270 device using I2C with it's alternative address (0x69).
+/// Configure the max data burst to 255 bytes:
+/// - used for the upload of the configuration during initialization.
+/// - This is a limitation from your device or its HAL. 
+let mut bmi = Bmi270::new_i2c(i2c, I2cAddr::Alternative, Burst::Other(255));
 
-// Wait for 450 us
-timer.delay_us(450_u32);
+/// Get the chip id. Should be 0x24 or 36 in decimal
+let chip_id = bmi.get_chip_id().unwrap();
 
-// Init -> upload the 8kB config file.
+/// Initialize the senor.
+/// During this process a configuration of > 8kB is uploaded to the sensor.
 bmi.init().unwrap();
+
+/// Enable power for the accelerometer and the gyroscope.
+let pwr_ctrl = PwrCtrl { aux_en: false, gyr_en: true, acc_en: true, temp_en: false };
+bmi.set_pwr_ctrl(pwr_ctrl).unwrap();
+
+/// Read the raw data
+let data = bmi.get_data().unwrap();
 
 // ...
 ```
-
-With an agnostic delay, the goal is to just require `bmi.init().unwrap();`
