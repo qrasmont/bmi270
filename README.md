@@ -1,8 +1,9 @@
-# Rust BMI270 driver
+# Rust BMI260/270 driver
+Forked from https://github.com/qrasmont/bmi270.
 
 [![stability-wip](https://img.shields.io/badge/stability-wip-lightgrey.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#work-in-progress)
 
-This is an [embedded-hal](https://github.com/rust-embedded/embedded-hal) driver for the Bosch BMI270 inertial measurement unit.
+This is an [embedded-hal](https://github.com/rust-embedded/embedded-hal) driver for the Bosch BMI260/270 inertial measurement unit.
 
 ## Quick start
 
@@ -20,10 +21,10 @@ let chip_id = bmi.get_chip_id().unwrap();
 
 /// Initialize the senor.
 /// During this process a configuration of > 8kB is uploaded to the sensor.
-bmi.init().unwrap();
+bmi.init(&config_file).unwrap();
 
 /// Enable power for the accelerometer and the gyroscope.
-let pwr_ctrl = PwrCtrl { aux_en: false, gyr_en: true, acc_en: true, temp_en: false };
+let pwr_ctrl = PwrCtrl{ aux_en: false, gyr_en: true, acc_en: true, temp_en: false };
 bmi.set_pwr_ctrl(pwr_ctrl).unwrap();
 
 /// Read the raw data
