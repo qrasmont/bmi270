@@ -1,6 +1,9 @@
+#![allow(unused)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
+
 use std::{error::Error, thread::sleep, time::Duration};
-use bmi270::{Bmi270, Burst, I2cAddr, PwrCtrl};
-// use types::Data;
+use bmi270::{Bmi270, Burst, I2cAddr, PwrCtrl, config::BMI260_CONFIG_FILE};
 extern crate linux_embedded_hal as hal;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -11,13 +14,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 I2cAddr::Alternative,
                                 Burst::Other(255));
 
-  // Get the chip id. Should be 0x24 or 36 in decimal
-  let chip_id = bmi.get_chip_id().unwrap();
-  println!("chip_id: {}", chip_id);
+  // Get the chip id. Should be 0x27 for the BMI260
+  println!("chip_id: {}", bmi.get_chip_id().unwrap());
 
-  // Initialize the senor.
-  // During this process a configuration of > 8kB is uploaded to the sensor.
-  bmi.init().unwrap();
+  // Initialize the sensor.
+  bmi.init(&BMI260_CONFIG_FILE).unwrap();
 
   // Enable power for the accelerometer and the gyroscope.
   let pwr_ctrl = PwrCtrl{ aux_en: false, gyr_en: true, acc_en: true, temp_en: false };
