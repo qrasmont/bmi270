@@ -1,6 +1,5 @@
 use fixedvec::FixedVec;
 
-use crate::config::BMI270_CONFIG_FILE;
 use crate::interface::{I2cAddr, I2cInterface, ReadData, SpiInterface, WriteData};
 use crate::registers::Registers;
 
@@ -705,7 +704,7 @@ where
     }
 
     /// Initialize sensor.
-    pub fn init(&mut self) -> Result<(), Error<CommE, CsE>> {
+    pub fn init(&mut self, config_file: &[u8]) -> Result<(), Error<CommE, CsE>> {
 
         // Disable advanced power mode
         let mut pwr_conf = self.get_pwr_conf()?;
@@ -717,7 +716,7 @@ where
         let mut vec = FixedVec::new(&mut preallocated_space);
 
         let mut offset = 0u16;
-        let max_len = BMI270_CONFIG_FILE.len() as u16;
+        let max_len = config_file.len() as u16;
         let burst = self.max_burst - 1; // Remove 1 for address byte
 
         self.set_init_ctrl(0)?;
@@ -734,7 +733,7 @@ where
             vec.push(Registers::INIT_DATA)
                 .map_err(|_| Error::<CommE, CsE>::Alloc)?;
 
-            vec.push_all(&BMI270_CONFIG_FILE[offset as usize..end as usize])
+            vec.push_all(&config_file[offset as usize..end as usize])
                 .map_err(|_| Error::<CommE, CsE>::Alloc)?;
 
             self.iface.write(&mut vec.as_mut_slice())?;

@@ -5,7 +5,7 @@ extern crate fixedvec;
 
 mod registers;
 mod types;
-mod config;
+pub mod config;
 
 pub mod interface;
 pub use interface::I2cAddr;
