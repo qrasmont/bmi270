@@ -13,8 +13,8 @@ pub use types::{
     AccConf, AccOffsets, AccRange, AccSelfTest, AuxConf, AuxData, AuxIfConf, AxisData, Burst, Cmd,
     Data, Drv, Error, ErrorReg, ErrorRegMsk, Event, FifoConf, FifoDowns, GyrConf, GyrCrtConf,
     GyrOffsets, GyrRange, GyrSelfTest, IfConf, IntIoCtrl, IntLatch, IntMapData, IntMapFeat,
-    InternalError, InternalStatus, InterruptStatus, NvConf, PullUpConf, PwrConf, PwrCtrl,
-    Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
+    InternalError, InternalStatus, InterruptStatus, MapData, NvConf, OutputBehavior, OutputLevel, 
+    PullUpConf, PwrConf, PwrCtrl, Saturation, Status, WristGestureActivity, FIFO_LENGTH_1_MASK,
 };
 
 pub mod bmi270;
