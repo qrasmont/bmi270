@@ -198,13 +198,13 @@ pub struct InterruptStatus {
     pub step_counter_out: bool,
     /// Step activity output.
     pub activity_out: bool,
-    /// Wrist wear wakeup ouput
+    /// Wrist wear wakeup output
     pub wrist_wear_wakeup_out: bool,
     /// Wrist gesture output.
     pub wrist_gesture_out: bool,
     /// No motion detection output.
     pub no_motion_out: bool,
-    /// Any motion detecion ouput.
+    /// Any motion detecion output.
     pub any_motion_out: bool,
     /// FIFO full interrupt.
     pub ffull_int: bool,
@@ -1022,7 +1022,7 @@ pub enum OutputBehavior {
 pub struct IntIoCtrl {
     pub level: OutputLevel,
     pub od: OutputBehavior,
-    pub ouput_en: bool,
+    pub output_en: bool,
     pub input_en: bool,
 }
 
@@ -1039,7 +1039,7 @@ impl IntIoCtrl {
                 0x01 => OutputBehavior::OpenDrain,
                 _ => panic!(), // TODO
             },
-            ouput_en: (reg & IntIoCtrlMask::OUTPUT_EN) != 0,
+            output_en: (reg & IntIoCtrlMask::OUTPUT_EN) != 0,
             input_en: (reg & IntIoCtrlMask::INPUT_EN) != 0,
         }
     }
@@ -1048,7 +1048,7 @@ impl IntIoCtrl {
         let level = self.level as u8;
         let od = self.od as u8;
         let output_en = if self.input_en { 0x01 } else { 0x00 };
-        let input_en = if self.ouput_en { 0x01 } else { 0x00 };
+        let input_en = if self.output_en { 0x01 } else { 0x00 };
 
         level << 1 | od << 2 | output_en << 3 | input_en << 4
     }
