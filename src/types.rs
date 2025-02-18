@@ -1047,8 +1047,8 @@ impl IntIoCtrl {
     pub fn to_reg(self) -> u8 {
         let level = self.level as u8;
         let od = self.od as u8;
-        let output_en = if self.input_en { 0x01 } else { 0x00 };
-        let input_en = if self.output_en { 0x01 } else { 0x00 };
+        let output_en = if self.output_en { 0x01 } else { 0x00 };
+        let input_en = if self.input_en { 0x01 } else { 0x00 };
 
         level << 1 | od << 2 | output_en << 3 | input_en << 4
     }

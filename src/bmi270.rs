@@ -460,7 +460,7 @@ where
     /// Set interrupt data map.
     pub fn set_int_map_data(&mut self, int_map_data: IntMapData) -> Result<(), Error<CommE, CsE>> {
         let reg = int_map_data.to_reg();
-        self.iface.write_reg(Registers::INT_LATCH, reg)?;
+        self.iface.write_reg(Registers::INT_MAP_DATA, reg)?;
         Ok(())
     }
 
