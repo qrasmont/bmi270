@@ -1,10 +1,8 @@
 /// The possible errors that could be encountered.
 #[derive(Debug)]
-pub enum Error<CommE, CsE> {
+pub enum Error<CommE> {
     /// Communication error over I2C or SPI.
     Comm(CommE),
-    /// Pin error on the SPI chip select.
-    Cs(CsE),
     /// Memory allocation error during initialization.
     Alloc,
 }
