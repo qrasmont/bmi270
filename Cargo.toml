@@ -1,7 +1,13 @@
 [package]
-name = "bmi270"
+name = "bmi2"
+description = "embedded-hal driver for the bmi270 IMU"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+homepage = "https://github.com/qrasmont/bmi270"
+repository = "https://github.com/qrasmont/bmi270"
+readme = "README.md"
+keywords = ["bmi2", "bmi270", "embedded-hal", "imu"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
